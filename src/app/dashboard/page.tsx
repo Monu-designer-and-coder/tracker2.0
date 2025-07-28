@@ -9,9 +9,15 @@ import axios, { AxiosResponse } from 'axios';
 import React, { RefObject, useEffect, useId, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useOutsideClick } from '@/hooks/use-outside-click';
+import { useSelector } from 'react-redux';
 
 const page = () => {
-	const [subjectList, setSubjectLIst] = useState<getSubjectResponse[]>();
+	const subjectListFromStore: getSubjectResponse[] = useSelector(
+		(state: { subjects: getSubjectResponse[] }) => state.subjects,
+	);
+	const [subjectList, setSubjectList] =
+		useState<getSubjectResponse[]>(subjectListFromStore);
+
 	const [subjectListCards, setSubjectLIstCard] = useState<
 		ExpandableCardInterface[]
 	>([
@@ -26,13 +32,13 @@ const page = () => {
 		},
 	]);
 
-	useEffect(() => {
-		// Get All Subject List
-		axios
-			.get('/api/subjects')
-			.then((response: AxiosResponse<getSubjectResponse[]>) =>
-				setSubjectLIst(response.data),
-			);
+	useEffect(function () {
+		const subjectListFromLocalStorageString: string =
+			window.localStorage.getItem('subjects') as string;
+		const subjectListObject: getSubjectResponse[] = JSON.parse(
+			subjectListFromLocalStorageString,
+		);
+		setSubjectList(subjectListObject);
 	}, []);
 
 	useEffect(() => {
@@ -49,7 +55,6 @@ const page = () => {
 			},
 		}));
 		setSubjectLIstCard(cards);
-		console.log(subjectListCards);
 	}, [subjectList]);
 
 	const [active, setActive] = useState<
@@ -167,8 +172,6 @@ const page = () => {
 			</AnimatePresence>
 			<ul className='max-w-2xl mx-auto w-full gap-4'>
 				{subjectListCards.map((card) => {
-					console.log(card);
-
 					return (
 						<motion.div
 							layoutId={`card-${card.id}-${id}`}

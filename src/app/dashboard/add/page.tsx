@@ -1,14 +1,16 @@
-"use client"
-import React from 'react';
+'use client';
+import React, { useEffect, useState } from 'react';
 
 import { z } from 'zod';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
+import { useSelector } from 'react-redux';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { subjectValidationSchema } from '@/schema/subject.schema';
+import { getSubjectResponse } from '@/types/res/GetResponse.types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -22,6 +24,25 @@ import {
 } from '@/components/ui/form';
 
 const page = () => {
+	//* Accessing the redux store
+	const subjects: getSubjectResponse[] = useSelector(
+		(state: { subjects: getSubjectResponse[] }) => state.subjects,
+	);
+
+	//* Defining the useStates
+	const [subjectList, setSubjectList] =
+		useState<getSubjectResponse[]>(subjects);
+
+	//* Defining UseEffects
+	useEffect(function () {
+		const subjectListFromLocalStorageString: string =
+			window.localStorage.getItem('subjects') as string;
+		const subjectListObject: getSubjectResponse[] = JSON.parse(
+			subjectListFromLocalStorageString,
+		);
+		setSubjectList(subjectListObject);
+	}, []);
+
 	//* Axios Config
 	const config = {
 		method: '',
