@@ -12,7 +12,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { subjectValidationSchema } from '@/schema/subject.schema';
 import { getSubjectResponse } from '@/types/res/GetResponse.types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
 import {
 	Form,
 	FormControl,
@@ -22,6 +28,17 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/components/ui/form';
+import { chapterValidationSchema } from '@/schema/chapter.schema';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const page = () => {
 	//* Accessing the redux store
@@ -60,6 +77,16 @@ const page = () => {
 			standard: '',
 		},
 	});
+	const chapterCreateForm = useForm<z.infer<typeof chapterValidationSchema>>({
+		resolver: zodResolver(chapterValidationSchema),
+		defaultValues: {
+			name: '',
+			subject: '',
+			seqNumber: '0',
+			done: false,
+			selectionDiary: false,
+		},
+	});
 
 	//* Defining the SubmitHandlers
 	function subjectOnSubmit(values: z.infer<typeof subjectValidationSchema>) {
@@ -79,7 +106,26 @@ const page = () => {
 				subjectCreateForm.setValue('standard', '');
 			});
 	}
-
+	function chapterOnSubmit(values: z.infer<typeof chapterValidationSchema>) {
+		config.method = 'POST';
+		config.data = values;
+		config.url = '/api/chapters';
+		axios
+			.request(config)
+			.then((response) => {
+				console.log(JSON.stringify(response.data));
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+			.finally(() => {
+				chapterCreateForm.setValue('name', '');
+				chapterCreateForm.setValue(
+					'seqNumber',
+					String(Number(chapterCreateForm.getValues('seqNumber')) + 1),
+				);
+			});
+	}
 	return (
 		<section className='w-full flex justify-center items-center h-[90vh]'>
 			<Tabs defaultValue='subject' className='w-[400px]'>
@@ -91,7 +137,8 @@ const page = () => {
 				<TabsContent value='subject'>
 					<Card>
 						<CardHeader>
-							<CardTitle>Add Subjects</CardTitle>
+							<CardTitle>Subjects</CardTitle>
+							<CardDescription>Add Subjects</CardDescription>
 						</CardHeader>
 						<CardContent>
 							<Form {...subjectCreateForm}>
@@ -134,7 +181,143 @@ const page = () => {
 						</CardContent>
 					</Card>
 				</TabsContent>
-				<TabsContent value='chapter'>Change your chapter here.</TabsContent>
+				<TabsContent value='chapter'>
+					<Card>
+						<CardHeader>
+							<CardTitle>Chapter</CardTitle>
+							<CardDescription>Add Chapter</CardDescription>
+						</CardHeader>
+						<CardContent className='space-y-2'>
+							<Form {...chapterCreateForm}>
+								<form
+									onSubmit={chapterCreateForm.handleSubmit(chapterOnSubmit)}
+									className='space-y-8'>
+									<FormField
+										control={chapterCreateForm.control}
+										name='name'
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Name</FormLabel>
+												<FormControl>
+													<Input placeholder='Subject' {...field} />
+												</FormControl>
+												<FormDescription>
+													This is the chapter name.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={chapterCreateForm.control}
+										name='subject'
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Subject</FormLabel>
+												<Select
+													onValueChange={field.onChange}
+													defaultValue={field.value}>
+													<FormControl>
+														<SelectTrigger>
+															<SelectValue placeholder='Select the Subject for the chapter' />
+														</SelectTrigger>
+													</FormControl>
+													<SelectContent>
+														<SelectGroup>
+															<SelectLabel>XI</SelectLabel>
+															{subjects
+																?.filter((value) => value.standard == 'XI')
+																.map((subject11) => (
+																	<SelectItem
+																		key={subject11._id}
+																		value={subject11._id}>
+																		{subject11.name} - {subject11.standard}
+																	</SelectItem>
+																))}
+														</SelectGroup>
+														<SelectGroup>
+															<SelectLabel>XII</SelectLabel>
+															{subjects
+																?.filter((value) => value.standard == 'XII')
+																.map((subject12) => (
+																	<SelectItem
+																		key={subject12._id}
+																		value={subject12._id}>
+																		{subject12.name} - {subject12.standard}
+																	</SelectItem>
+																))}
+														</SelectGroup>
+													</SelectContent>
+												</Select>
+												<FormDescription>
+													This is the subject of the chapter.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={chapterCreateForm.control}
+										name='seqNumber'
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Seq No.</FormLabel>
+												<FormControl>
+													<Input
+														type='number'
+														placeholder='Standard'
+														{...field}
+													/>
+												</FormControl>
+												<FormDescription>Enter the Seq No.</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={chapterCreateForm.control}
+										name='selectionDiary'
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Selection Diary</FormLabel>
+												<FormControl>
+													<Checkbox
+														checked={field.value}
+														onCheckedChange={field.onChange}
+													/>
+												</FormControl>
+												<FormDescription>
+													Check if Selection Diary of the chapter is Completed.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={chapterCreateForm.control}
+										name='done'
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Completed</FormLabel>
+												<FormControl>
+													<Checkbox
+														checked={field.value}
+														onCheckedChange={field.onChange}
+													/>
+												</FormControl>
+												<FormDescription>
+													Check if the Chapter is complete.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<Button type='submit'>Submit</Button>
+								</form>
+							</Form>
+						</CardContent>
+					</Card>
+				</TabsContent>
 				<TabsContent value='topics'>Change your topics here.</TabsContent>
 			</Tabs>
 		</section>

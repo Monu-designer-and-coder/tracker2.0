@@ -14,7 +14,10 @@ export async function POST(request: Request) {
 	const validationResult = subjectValidationSchema.safeParse(body);
 	if (!validationResult.success) {
 		// If validation fails, return a 400 response with the validation errors
-		return NextResponse.json({ errors: validationResult }, { status: 400 });
+		return NextResponse.json(
+			{ errors: validationResult.error },
+			{ status: 400 },
+		);
 	}
 
 	const subject = new SubjectModel(body);

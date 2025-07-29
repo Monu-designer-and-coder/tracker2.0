@@ -1,16 +1,43 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import DarkModeSwitch from './dark-mode-switch';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose } from '@/components/ui/sheet';
+import {
+	Sheet,
+	SheetTrigger,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetFooter,
+	SheetClose,
+} from '@/components/ui/sheet';
+import { useDispatch } from 'react-redux';
+import axios, { AxiosResponse } from 'axios';
+import { getSubjectResponse } from '@/types/res/GetResponse.types';
+import { updateSubjects } from '@/reducers/data.slice';
 
 function Header({ className = '' }: { className?: String }) {
 	const [open, setOpen] = useState(false);
 
+	const dispatch = useDispatch();
+
+	useEffect(() => {
+		// Get All Subject List
+		axios
+			.get('/api/subjects')
+			.then((response: AxiosResponse<getSubjectResponse[]>) => {
+				dispatch(updateSubjects(response.data));
+				window.localStorage.setItem('subjects', JSON.stringify(response.data));
+			});
+	}, []);
+
 	return (
-		<header className={`flex justify-between items-center p-4 w-full bg-zinc-300 dark:bg-zinc-950 ${className}`}>
-			<section className='dark:text-white font-bold text-3xl'>JEE PROGRESS</section>
+		<header
+			className={`flex justify-between items-center p-4 w-full bg-zinc-300 dark:bg-zinc-950 ${className}`}>
+			<section className='dark:text-white font-bold text-3xl'>
+				JEE PROGRESS
+			</section>
 
 			{/* Desktop Menu */}
 			<nav className='hidden md:flex gap-6 dark:text-white'>
@@ -29,12 +56,22 @@ function Header({ className = '' }: { className?: String }) {
 							<SheetTitle>JEE Progress</SheetTitle>
 						</SheetHeader>
 						<nav className='flex flex-col gap-4 mt-8 text-lg dark:text-white p-4'>
-							<Link className='w-full border border-y-1 border-x-0 p-10' href='/' onClick={() => setOpen(false)}>Home</Link>
-							<Link className='w-full border border-y-1 border-x-0 p-10' href='/dashboard' onClick={() => setOpen(false)}>Dashboard</Link>
+							<Link
+								className='w-full border border-y-1 border-x-0 p-10'
+								href='/'
+								onClick={() => setOpen(false)}>
+								Home
+							</Link>
+							<Link
+								className='w-full border border-y-1 border-x-0 p-10'
+								href='/dashboard'
+								onClick={() => setOpen(false)}>
+								Dashboard
+							</Link>
 						</nav>
 						<SheetFooter>
 							<SheetClose asChild>
-								<Button variant="outline">Close</Button>
+								<Button variant='outline'>Close</Button>
 							</SheetClose>
 						</SheetFooter>
 					</SheetContent>

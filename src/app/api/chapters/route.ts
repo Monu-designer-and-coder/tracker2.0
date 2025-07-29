@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 	if (!validationResult.success) {
 		// If validation fails, return a 400 response with the validation errors
 		return NextResponse.json(
-			{ errors: validationResult.error.errors },
+			{ errors: validationResult.error },
 			{ status: 400 },
 		);
 	}
@@ -33,63 +33,25 @@ export async function GET(request: Request) {
 		const aggregatedData = await ChapterModel.aggregate([
 			{
 				$lookup: {
-					from: 'topics',
-					localField: '_id',
-					foreignField: 'chapter',
-					as: 'topics',
-				},
-			},
-			{
-				$addFields: {
-					topics: {
-						$map: {
-							input: '$topics',
-							as: 'topic',
-							in: {
-								_id: '$$topic._id',
-								name: '$$topic.name',
-								seqNumber: '$$topic.seqNumber',
-								done: '$$topic.done',
+					from: 'subjects',
+					localField: 'subject',
+					foreignField: '_id',
+					pipeline: [
+						{
+							$project: {
+								_id: 1,
+								name: 1,
+								standard: 1,
 							},
 						},
-					},
-					completedTopics: {
-						$filter: {
-							input: '$topics',
-							as: 'topic',
-							cond: '$$topic.done',
-						},
-					},
+					],
+					as: 'subjectDetails',
 				},
 			},
 			{
 				$addFields: {
-					totalTopics: {
-						$size: '$topics',
-					},
-					totalCompletedTopics: {
-						$size: '$completedTopics',
-					},
-				},
-			},
-			{
-				$addFields: {
-					percentCompletedRatio: {
-						$divide: ['$totalCompletedTopics', '$totalTopics'],
-					},
-				},
-			},
-			{
-				$project: {
-					_id: 1,
-					name: 1,
-					standard: 1,
-					topics: 1,
-					completedTopics: 1,
-					totalTopics: 1,
-					totalCompletedTopics: 1,
-					percentCompleted: {
-						$multiply: ['$percentCompletedRatio', 100],
+					subjectDetails: {
+						$first: '$subjectDetails',
 					},
 				},
 			},
