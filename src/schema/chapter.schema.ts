@@ -9,6 +9,11 @@ export const chapterValidationSchema = z.object({
 	seqNumber: z.string(),
 	done: z.boolean(),
 	selectionDiary: z.boolean(),
+	onePager: z.boolean(),
+	DPP: z.boolean(),
+	Module: z.boolean(),
+	PYQ: z.boolean(),
+	ExtraMaterial: z.boolean(),
 });
 export const chapterValidationSchemaBackend = z.object({
 	name: z
@@ -19,4 +24,9 @@ export const chapterValidationSchemaBackend = z.object({
 	seqNumber: z.number(),
 	done: z.boolean(),
 	selectionDiary: z.boolean(),
+	onePager: z.boolean(),
+	DPP: z.boolean(),
+	Module: z.boolean(),
+	PYQ: z.boolean(),
+	ExtraMaterial: z.boolean(),
 });

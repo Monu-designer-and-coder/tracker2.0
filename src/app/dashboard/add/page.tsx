@@ -39,6 +39,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { cn } from '@/lib/utils';
 
 const page = () => {
 	//* Accessing the redux store
@@ -85,6 +86,11 @@ const page = () => {
 			seqNumber: '0',
 			done: false,
 			selectionDiary: false,
+			onePager: false,
+			DPP: false,
+			Module: false,
+			PYQ: false,
+			ExtraMaterial: false,
 		},
 	});
 
@@ -108,7 +114,7 @@ const page = () => {
 	}
 	function chapterOnSubmit(values: z.infer<typeof chapterValidationSchema>) {
 		config.method = 'POST';
-		config.data = values;
+		config.data = { ...values, seqNumber: Number(values.seqNumber) };
 		config.url = '/api/chapters';
 		axios
 			.request(config)
@@ -150,10 +156,12 @@ const page = () => {
 										name='name'
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Name</FormLabel>
-												<FormControl>
-													<Input placeholder='Subject' {...field} />
-												</FormControl>
+												<LabelInputContainer>
+													<FormLabel>Name</FormLabel>
+													<FormControl>
+														<Input placeholder='Subject' {...field} />
+													</FormControl>
+												</LabelInputContainer>
 												<FormDescription>
 													This is the subject name.
 												</FormDescription>
@@ -166,10 +174,12 @@ const page = () => {
 										name='standard'
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Standard</FormLabel>
-												<FormControl>
-													<Input placeholder='Standard' {...field} />
-												</FormControl>
+												<LabelInputContainer>
+													<FormLabel>Standard</FormLabel>
+													<FormControl>
+														<Input placeholder='Standard' {...field} />
+													</FormControl>
+												</LabelInputContainer>
 												<FormDescription>This is the standard.</FormDescription>
 												<FormMessage />
 											</FormItem>
@@ -197,10 +207,12 @@ const page = () => {
 										name='name'
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Name</FormLabel>
-												<FormControl>
-													<Input placeholder='Subject' {...field} />
-												</FormControl>
+												<LabelInputContainer>
+													<FormLabel>Name</FormLabel>
+													<FormControl>
+														<Input placeholder='Subject' {...field} />
+													</FormControl>
+												</LabelInputContainer>
 												<FormDescription>
 													This is the chapter name.
 												</FormDescription>
@@ -213,42 +225,44 @@ const page = () => {
 										name='subject'
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Subject</FormLabel>
-												<Select
-													onValueChange={field.onChange}
-													defaultValue={field.value}>
-													<FormControl>
-														<SelectTrigger>
-															<SelectValue placeholder='Select the Subject for the chapter' />
-														</SelectTrigger>
-													</FormControl>
-													<SelectContent>
-														<SelectGroup>
-															<SelectLabel>XI</SelectLabel>
-															{subjects
-																?.filter((value) => value.standard == 'XI')
-																.map((subject11) => (
-																	<SelectItem
-																		key={subject11._id}
-																		value={subject11._id}>
-																		{subject11.name} - {subject11.standard}
-																	</SelectItem>
-																))}
-														</SelectGroup>
-														<SelectGroup>
-															<SelectLabel>XII</SelectLabel>
-															{subjects
-																?.filter((value) => value.standard == 'XII')
-																.map((subject12) => (
-																	<SelectItem
-																		key={subject12._id}
-																		value={subject12._id}>
-																		{subject12.name} - {subject12.standard}
-																	</SelectItem>
-																))}
-														</SelectGroup>
-													</SelectContent>
-												</Select>
+												<LabelInputContainer>
+													<FormLabel>Subject</FormLabel>
+													<Select
+														onValueChange={field.onChange}
+														defaultValue={field.value}>
+														<FormControl>
+															<SelectTrigger>
+																<SelectValue placeholder='Select the Subject for the chapter' />
+															</SelectTrigger>
+														</FormControl>
+														<SelectContent>
+															<SelectGroup>
+																<SelectLabel>XI</SelectLabel>
+																{subjects
+																	?.filter((value) => value.standard == 'XI')
+																	.map((subject11) => (
+																		<SelectItem
+																			key={subject11._id}
+																			value={subject11._id}>
+																			{subject11.name} - {subject11.standard}
+																		</SelectItem>
+																	))}
+															</SelectGroup>
+															<SelectGroup>
+																<SelectLabel>XII</SelectLabel>
+																{subjects
+																	?.filter((value) => value.standard == 'XII')
+																	.map((subject12) => (
+																		<SelectItem
+																			key={subject12._id}
+																			value={subject12._id}>
+																			{subject12.name} - {subject12.standard}
+																		</SelectItem>
+																	))}
+															</SelectGroup>
+														</SelectContent>
+													</Select>
+												</LabelInputContainer>
 												<FormDescription>
 													This is the subject of the chapter.
 												</FormDescription>
@@ -261,57 +275,153 @@ const page = () => {
 										name='seqNumber'
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Seq No.</FormLabel>
-												<FormControl>
-													<Input
-														type='number'
-														placeholder='Standard'
-														{...field}
-													/>
-												</FormControl>
+												<LabelInputContainer>
+													<FormLabel>Seq No.</FormLabel>
+													<FormControl>
+														<Input
+															type='number'
+															placeholder='Standard'
+															{...field}
+														/>
+													</FormControl>
+												</LabelInputContainer>
 												<FormDescription>Enter the Seq No.</FormDescription>
 												<FormMessage />
 											</FormItem>
 										)}
 									/>
-									<FormField
-										control={chapterCreateForm.control}
-										name='selectionDiary'
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel>Selection Diary</FormLabel>
-												<FormControl>
-													<Checkbox
-														checked={field.value}
-														onCheckedChange={field.onChange}
-													/>
-												</FormControl>
-												<FormDescription>
-													Check if Selection Diary of the chapter is Completed.
-												</FormDescription>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-									<FormField
-										control={chapterCreateForm.control}
-										name='done'
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel>Completed</FormLabel>
-												<FormControl>
-													<Checkbox
-														checked={field.value}
-														onCheckedChange={field.onChange}
-													/>
-												</FormControl>
-												<FormDescription>
-													Check if the Chapter is complete.
-												</FormDescription>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
+									<div className='mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2'>
+										<FormField
+											control={chapterCreateForm.control}
+											name='selectionDiary'
+											render={({ field }) => (
+												<FormItem>
+													<LabelInputContainer>
+														<FormLabel>Selection Diary</FormLabel>
+														<FormControl>
+															<Checkbox
+																checked={field.value}
+																onCheckedChange={field.onChange}
+															/>
+														</FormControl>
+													</LabelInputContainer>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={chapterCreateForm.control}
+											name='done'
+											render={({ field }) => (
+												<FormItem>
+													<LabelInputContainer>
+														<FormLabel>Completed</FormLabel>
+														<FormControl>
+															<Checkbox
+																checked={field.value}
+																onCheckedChange={field.onChange}
+															/>
+														</FormControl>
+													</LabelInputContainer>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										<FormField
+											control={chapterCreateForm.control}
+											name='DPP'
+											render={({ field }) => (
+												<FormItem>
+													<LabelInputContainer>
+														<FormLabel>DPP</FormLabel>
+														<FormControl>
+															<Checkbox
+																checked={field.value}
+																onCheckedChange={field.onChange}
+															/>
+														</FormControl>
+													</LabelInputContainer>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										<FormField
+											control={chapterCreateForm.control}
+											name='onePager'
+											render={({ field }) => (
+												<FormItem>
+													<LabelInputContainer>
+														<FormLabel>onePager</FormLabel>
+														<FormControl>
+															<Checkbox
+																checked={field.value}
+																onCheckedChange={field.onChange}
+															/>
+														</FormControl>
+													</LabelInputContainer>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									</div>
+									<div className='mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2'>
+										<FormField
+											control={chapterCreateForm.control}
+											name='PYQ'
+											render={({ field }) => (
+												<FormItem>
+													<LabelInputContainer>
+														<FormLabel>PYQ</FormLabel>
+														<FormControl>
+															<Checkbox
+																checked={field.value}
+																onCheckedChange={field.onChange}
+															/>
+														</FormControl>
+													</LabelInputContainer>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={chapterCreateForm.control}
+											name='Module'
+											render={({ field }) => (
+												<FormItem>
+													<LabelInputContainer>
+														<FormLabel>Module</FormLabel>
+														<FormControl>
+															<Checkbox
+																checked={field.value}
+																onCheckedChange={field.onChange}
+															/>
+														</FormControl>
+													</LabelInputContainer>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={chapterCreateForm.control}
+											name='ExtraMaterial'
+											render={({ field }) => (
+												<FormItem>
+													<LabelInputContainer>
+														<FormLabel>ExtraMaterial</FormLabel>
+														<FormControl>
+															<Checkbox
+																checked={field.value}
+																onCheckedChange={field.onChange}
+															/>
+														</FormControl>
+													</LabelInputContainer>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									</div>
 									<Button type='submit'>Submit</Button>
 								</form>
 							</Form>
@@ -325,3 +435,21 @@ const page = () => {
 };
 
 export default page;
+
+const LabelInputContainer = ({
+	children,
+	className,
+}: {
+	children: React.ReactNode;
+	className?: string;
+}) => {
+	return (
+		<div
+			className={cn(
+				'flex w-full flex-col space-y-2 ',
+				className,
+			)}>
+			{children}
+		</div>
+	);
+};

@@ -6,6 +6,11 @@ export interface ChapterModelInterface extends Document {
 	seqNumber: number;
 	done: boolean;
 	selectionDiary: boolean;
+	onePager: Boolean;
+	DPP: Boolean;
+	Module: Boolean;
+	PYQ: Boolean;
+	ExtraMaterial: Boolean;
 }
 
 const ChapterSchema: Schema<ChapterModelInterface> = new Schema(
@@ -29,6 +34,26 @@ const ChapterSchema: Schema<ChapterModelInterface> = new Schema(
 			default: false,
 		},
 		selectionDiary: {
+			type: Boolean,
+			default: false,
+		},
+		onePager: {
+			type: Boolean,
+			default: false,
+		},
+		DPP: {
+			type: Boolean,
+			default: false,
+		},
+		Module: {
+			type: Boolean,
+			default: false,
+		},
+		PYQ: {
+			type: Boolean,
+			default: false,
+		},
+		ExtraMaterial: {
 			type: Boolean,
 			default: false,
 		},

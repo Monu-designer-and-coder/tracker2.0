@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import ChapterModel, { ChapterModelInterface } from '@/model/chapter.model';
 import dbConn from '@/lib/dbConn';
 import { chapterValidationSchemaBackend } from '@/schema/chapter.schema';
+import { getChapterResponse } from '@/types/res/GetResponse.types';
 
 // Create a new chapter
 export async function POST(request: Request) {
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
 	// Get all chapters
 	if (!searchParams.get('id')) {
-		const aggregatedData = await ChapterModel.aggregate([
+		const aggregatedData: getChapterResponse[] = await ChapterModel.aggregate([
 			{
 				$lookup: {
 					from: 'subjects',
@@ -53,6 +54,27 @@ export async function GET(request: Request) {
 					subjectDetails: {
 						$first: '$subjectDetails',
 					},
+				},
+			},
+			{
+				$sort: {
+					subject: 1,
+					seqNumber: 1,
+				},
+			},
+			{
+				$project: {
+					_id: 1,
+					name: 1,
+					subject: '$subjectDetails',
+					seqNumber: 1,
+					done: 1,
+					selectionDiary: 1,
+					onePager: 1,
+					DPP: 1,
+					Module: 1,
+					PYQ: 1,
+					ExtraMaterial: 1,
 				},
 			},
 		]);
