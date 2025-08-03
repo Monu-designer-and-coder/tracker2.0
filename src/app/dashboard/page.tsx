@@ -9,15 +9,13 @@ import axios, { AxiosResponse } from 'axios';
 import React, { RefObject, useEffect, useId, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useOutsideClick } from '@/hooks/use-outside-click';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '@/hooks/actions';
 
 const page = () => {
-	const subjectListFromStore: getSubjectResponse[] = useSelector(
-		(state: { subjects: getSubjectResponse[] }) => state.subjects,
-	);
+	const subjectListFromStore = useAppSelector((state) => state.data.subjects);
 	const [subjectList, setSubjectList] =
 		useState<getSubjectResponse[]>(subjectListFromStore);
-
+	console.log(subjectList);
 	const [subjectListCards, setSubjectLIstCard] = useState<
 		ExpandableCardInterface[]
 	>([

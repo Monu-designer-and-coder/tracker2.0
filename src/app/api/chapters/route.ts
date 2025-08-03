@@ -3,7 +3,11 @@ import { NextResponse } from 'next/server';
 import ChapterModel, { ChapterModelInterface } from '@/model/chapter.model';
 import dbConn from '@/lib/dbConn';
 import { chapterValidationSchemaBackend } from '@/schema/chapter.schema';
-import { getChapterResponse } from '@/types/res/GetResponse.types';
+import {
+	getChapterResponse,
+	getSubjectWiseChapterResponse,
+} from '@/types/res/GetResponse.types';
+import SubjectModel from '@/model/subject.model';
 
 // Create a new chapter
 export async function POST(request: Request) {
@@ -31,54 +35,96 @@ export async function GET(request: Request) {
 	const { searchParams } = new URL(request.url);
 	// Get all chapters
 	if (!searchParams.get('id')) {
-		const aggregatedData: getChapterResponse[] = await ChapterModel.aggregate([
-			{
-				$lookup: {
-					from: 'subjects',
-					localField: 'subject',
-					foreignField: '_id',
-					pipeline: [
-						{
-							$project: {
-								_id: 1,
-								name: 1,
-								standard: 1,
+		if (searchParams.get('type') == 'all') {
+			const aggregatedData: getChapterResponse[] = await ChapterModel.aggregate(
+				[
+					{
+						$lookup: {
+							from: 'subjects',
+							localField: 'subject',
+							foreignField: '_id',
+							pipeline: [
+								{
+									$project: {
+										_id: 1,
+										name: 1,
+										standard: 1,
+									},
+								},
+							],
+							as: 'subjectDetails',
+						},
+					},
+					{
+						$addFields: {
+							subjectDetails: {
+								$first: '$subjectDetails',
 							},
 						},
-					],
-					as: 'subjectDetails',
-				},
-			},
-			{
-				$addFields: {
-					subjectDetails: {
-						$first: '$subjectDetails',
 					},
-				},
-			},
-			{
-				$sort: {
-					subject: 1,
-					seqNumber: 1,
-				},
-			},
-			{
-				$project: {
-					_id: 1,
-					name: 1,
-					subject: '$subjectDetails',
-					seqNumber: 1,
-					done: 1,
-					selectionDiary: 1,
-					onePager: 1,
-					DPP: 1,
-					Module: 1,
-					PYQ: 1,
-					ExtraMaterial: 1,
-				},
-			},
-		]);
-		return NextResponse.json(aggregatedData);
+					{
+						$sort: {
+							subject: 1,
+							seqNumber: 1,
+						},
+					},
+					{
+						$project: {
+							_id: 1,
+							name: 1,
+							subject: '$subjectDetails',
+							seqNumber: 1,
+							done: 1,
+							selectionDiary: 1,
+							onePager: 1,
+							DPP: 1,
+							Module: 1,
+							PYQ: 1,
+							ExtraMaterial: 1,
+						},
+					},
+				],
+			);
+			return NextResponse.json(aggregatedData);
+		}
+		if (searchParams.get('type') == 'subjectWise') {
+			const aggregatedData: getSubjectWiseChapterResponse[] =
+				await SubjectModel.aggregate([
+					{
+						$lookup: {
+							from: 'chapters',
+							localField: '_id',
+							foreignField: 'subject',
+							as: 'chapterList',
+							pipeline: [
+								{
+									$project: {
+										_id: 1,
+										name: 1,
+										seqNumber: 1,
+										done: 1,
+										selectionDiary: 1,
+										onePager: 1,
+										DPP: 1,
+										Module: 1,
+										PYQ: 1,
+										ExtraMaterial: 1,
+									},
+								},
+							],
+						},
+					},
+					{
+						$project: {
+							_id: 1,
+							name: 1,
+							standard: 1,
+							chapterList: 1,
+						},
+					},
+				]);
+			return NextResponse.json(aggregatedData);
+		}
 	}
 	const id = searchParams.get('id');
 	const chapter = await ChapterModel.findById(id);

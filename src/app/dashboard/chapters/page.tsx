@@ -1,9 +1,15 @@
-import React from 'react'
+'use client';
+import { useAppSelector } from '@/hooks/actions';
+import React, { useEffect } from 'react';
 
 const page = () => {
-  return (
-    <div>Chapters</div>
-  )
-}
+	const subjectWiseChapters = useAppSelector(
+		(state) => state.data.subjectWiseChapters,
+	);
+	useEffect(() => {
+		console.log(subjectWiseChapters);
+	}, [subjectWiseChapters]);
+	return <div>Chapters</div>;
+};
 
-export default page
+export default page;

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { z } from 'zod';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
-import { useSelector } from 'react-redux';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -40,26 +39,28 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { useAppSelector } from '@/hooks/actions';
 
 const page = () => {
 	//* Accessing the redux store
-	const subjects: getSubjectResponse[] = useSelector(
-		(state: { subjects: getSubjectResponse[] }) => state.subjects,
-	);
+	const subjects = useAppSelector((state) => state.data.subjects);
 
 	//* Defining the useStates
 	const [subjectList, setSubjectList] =
 		useState<getSubjectResponse[]>(subjects);
 
 	//* Defining UseEffects
-	useEffect(function () {
-		const subjectListFromLocalStorageString: string =
-			window.localStorage.getItem('subjects') as string;
-		const subjectListObject: getSubjectResponse[] = JSON.parse(
-			subjectListFromLocalStorageString,
-		);
-		setSubjectList(subjectListObject);
-	}, []);
+	useEffect(
+		function () {
+			const subjectListFromLocalStorageString: string =
+				window.localStorage.getItem('subjects') as string;
+			const subjectListObject: getSubjectResponse[] = JSON.parse(
+				subjectListFromLocalStorageString,
+			);
+			setSubjectList(subjectListObject);
+		},
+		[subjects],
+	);
 
 	//* Axios Config
 	const config = {
@@ -238,7 +239,7 @@ const page = () => {
 														<SelectContent>
 															<SelectGroup>
 																<SelectLabel>XI</SelectLabel>
-																{subjects
+																{subjectList
 																	?.filter((value) => value.standard == 'XI')
 																	.map((subject11) => (
 																		<SelectItem
@@ -250,7 +251,7 @@ const page = () => {
 															</SelectGroup>
 															<SelectGroup>
 																<SelectLabel>XII</SelectLabel>
-																{subjects
+																{subjectList
 																	?.filter((value) => value.standard == 'XII')
 																	.map((subject12) => (
 																		<SelectItem
@@ -444,11 +445,7 @@ const LabelInputContainer = ({
 	className?: string;
 }) => {
 	return (
-		<div
-			className={cn(
-				'flex w-full flex-col space-y-2 ',
-				className,
-			)}>
+		<div className={cn('flex w-full flex-col space-y-2 ', className)}>
 			{children}
 		</div>
 	);

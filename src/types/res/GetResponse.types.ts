@@ -16,3 +16,18 @@ export interface getChapterResponse {
 	PYQ: Boolean;
 	ExtraMaterial: Boolean;
 }
+
+export interface getSubjectWiseChapterResponse extends getSubjectResponse {
+	chapterList: {
+		_id: string;
+		name: string;
+		seqNumber: number;
+		done: boolean;
+		selectionDiary: boolean;
+		onePager: Boolean;
+		DPP: Boolean;
+		Module: Boolean;
+		PYQ: Boolean;
+		ExtraMaterial: Boolean;
+	}[];
+}

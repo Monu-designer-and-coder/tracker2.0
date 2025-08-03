@@ -12,15 +12,19 @@ import {
 	SheetFooter,
 	SheetClose,
 } from '@/components/ui/sheet';
-import { useDispatch } from 'react-redux';
 import axios, { AxiosResponse } from 'axios';
 import { getSubjectResponse } from '@/types/res/GetResponse.types';
-import { updateSubjects } from '@/reducers/data.slice';
+import {
+	updateSubjects,
+	updateSubjectWiseChapters,
+} from '@/reducers/data.slice';
+import { useAppDispatch } from '@/hooks/actions';
+import { getSubjectWiseChapterResponse } from './../types/res/GetResponse.types';
 
 function Header({ className = '' }: { className?: String }) {
 	const [open, setOpen] = useState(false);
 
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
 
 	useEffect(() => {
 		// Get All Subject List
@@ -29,6 +33,15 @@ function Header({ className = '' }: { className?: String }) {
 			.then((response: AxiosResponse<getSubjectResponse[]>) => {
 				dispatch(updateSubjects(response.data));
 				window.localStorage.setItem('subjects', JSON.stringify(response.data));
+			});
+		axios
+			.get('/api/chapters?type=subjectWise')
+			.then((response: AxiosResponse<getSubjectWiseChapterResponse[]>) => {
+				dispatch(updateSubjectWiseChapters(response.data));
+				window.localStorage.setItem(
+					'subjectWiseChapters',
+					JSON.stringify(response.data),
+				);
 			});
 	}, []);
 
