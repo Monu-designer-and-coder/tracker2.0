@@ -24,10 +24,10 @@ export interface getSubjectWiseChapterResponse extends getSubjectResponse {
 		seqNumber: number;
 		done: boolean;
 		selectionDiary: boolean;
-		onePager: Boolean;
-		DPP: Boolean;
-		Module: Boolean;
-		PYQ: Boolean;
-		ExtraMaterial: Boolean;
+		onePager: boolean;
+		DPP: boolean;
+		Module: boolean;
+		PYQ: boolean;
+		ExtraMaterial: boolean;
 	}[];
 }

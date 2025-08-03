@@ -53,13 +53,13 @@ export function AppSidebar() {
         <Sidebar variant="floating">
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel className="text-3xl text-white">JEE PROGRESS</SidebarGroupLabel>
+                    <SidebarGroupLabel className="text-3xl text-stone-900 dark:text-white">JEE PROGRESS</SidebarGroupLabel>
                     <SidebarGroupContent className="p-5">
                         <SidebarMenu>
                             {items.map((item) => (
                                 <SidebarMenuItem className="my-2" key={item.title}>
                                     <SidebarMenuButton asChild>
-                                        <Link className="border border-white bg-stone-950" href={item.url}>
+                                        <Link className="border border-black bg-stone-200 dark:border-white dark:bg-stone-950" href={item.url}>
                                             <item.icon />
                                             <span>{item.title}</span>
                                         </Link>

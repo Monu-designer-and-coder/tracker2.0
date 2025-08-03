@@ -47,7 +47,7 @@ function Header({ className = '' }: { className?: String }) {
 
 	return (
 		<header
-			className={`flex justify-between items-center p-4 w-full bg-zinc-300 dark:bg-zinc-950 ${className}`}>
+			className={`flex justify-between items-center p-4 py-8 w-full bg-zinc-300 dark:bg-zinc-950 ${className}`}>
 			<section className='dark:text-white font-bold text-3xl'>
 				JEE PROGRESS
 			</section>

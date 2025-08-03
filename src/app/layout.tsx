@@ -35,7 +35,7 @@ export default function RootLayout({
 						defaultTheme='system'
 						enableSystem
 						disableTransitionOnChange>
-						<Header className={'h-5vh]'} />
+						<Header className={'h-[5vh] '} />
 						<main>{children}</main>
 					</ThemeProvider>
 				</StoreProvider>
