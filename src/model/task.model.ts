@@ -1,25 +1,55 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+const DaysOfWeek = [
+	'Sunday',
+	'Monday',
+	'Tuesday',
+	'Wednesday',
+	'Thursday',
+	'Friday',
+	'Saturday',
+];
 export interface TaskModelInterface extends Document {
-	name: string;
+	task: string;
+	category: Schema.Types.ObjectId;
 	done: boolean;
-	deadline: Schema.Types.Date;
+	assignedDate: Schema.Types.Date;
 	completedAt: Schema.Types.Date;
+	repeat?: (typeof DaysOfWeek)[number][];
 }
 
-const TaskSchema: Schema<TaskModelInterface> = new Schema(
+export const TaskSchema: Schema<TaskModelInterface> = new Schema(
 	{
-		name: {
-			type: String,
+		category: {
+			type: Schema.Types.ObjectId,
 			required: true,
-			trim: true,
+			ref: 'TaskCategory',
 		},
 		done: {
 			type: Boolean,
 			default: false,
 		},
-		deadline: Schema.Types.Date,
-		completedAt: Schema.Types.Date,
+		repeat: {
+			type: [
+				{
+					type: String,
+					enum: DaysOfWeek,
+				},
+			],
+			default: [],
+		},
+		task: {
+			type: String,
+			required: true,
+		},
+		assignedDate: {
+			type: Date,
+			default: Date.now,
+		},
+		completedAt: {
+			type: Date,
+			required: false,
+		},
 	},
 	{
 		timestamps: true,
