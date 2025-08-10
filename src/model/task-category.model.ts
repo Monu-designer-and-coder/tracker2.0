@@ -18,7 +18,8 @@ const TaskCategorySchema: Schema<TaskCategoryModelInterface> = new Schema(
 );
 
 const TaskCategoryModel =
-	(mongoose.models.Task as mongoose.Model<TaskCategoryModelInterface>) ||
+	(mongoose.models
+		.TaskCategory as mongoose.Model<TaskCategoryModelInterface>) ||
 	mongoose.model<TaskCategoryModelInterface>(
 		'TaskCategory',
 		TaskCategorySchema,

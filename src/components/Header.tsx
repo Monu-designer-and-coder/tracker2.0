@@ -56,6 +56,7 @@ function Header({ className = '' }: { className?: String }) {
 			<nav className='hidden md:flex gap-6 dark:text-white'>
 				<Link href='/'>Home</Link>
 				<Link href='/dashboard'>Dashboard</Link>
+				<Link href='/tasks'>Tasks</Link>
 			</nav>
 
 			{/* Mobile Hamburger Menu using Sheet from ShadCN */}
@@ -80,6 +81,12 @@ function Header({ className = '' }: { className?: String }) {
 								href='/dashboard'
 								onClick={() => setOpen(false)}>
 								Dashboard
+							</Link>
+							<Link
+								className='w-full border border-y-1 border-x-0 p-10'
+								href='/tasks'
+								onClick={() => setOpen(false)}>
+								Tasks
 							</Link>
 						</nav>
 						<SheetFooter>

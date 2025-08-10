@@ -31,6 +31,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           transparent 80%
         )
       `,
+					width: `100%`,
 				}}
 				onMouseMove={handleMouseMove}
 				onMouseEnter={() => setVisible(true)}

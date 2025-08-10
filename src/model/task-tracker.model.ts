@@ -1,11 +1,8 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { TaskModelInterface, TaskSchema } from './task.model';
 
 export interface TaskTrackerModelInterface extends Document {
 	date: Schema.Types.Date;
-	tasks: TaskModelInterface[];
-	totalTaskAssigned: number;
-	totalTaskDone: number;
+	task: Schema.Types.ObjectId;
 	status: 'current' | 'past';
 }
 
@@ -19,9 +16,7 @@ const TaskTrackerSchema: Schema<TaskTrackerModelInterface> = new Schema(
 			type: String,
 			enum: ['current', 'past'],
 		},
-		tasks: [TaskSchema],
-		totalTaskAssigned: Number,
-		totalTaskDone: Number,
+		task: { type: Schema.Types.ObjectId, ref: 'Task' },
 	},
 	{
 		timestamps: true,
@@ -29,6 +24,6 @@ const TaskTrackerSchema: Schema<TaskTrackerModelInterface> = new Schema(
 );
 
 const TaskTrackerModel =
-	(mongoose.models.Task as mongoose.Model<TaskTrackerModelInterface>) ||
+	(mongoose.models.TaskTracker as mongoose.Model<TaskTrackerModelInterface>) ||
 	mongoose.model<TaskTrackerModelInterface>('TaskTracker', TaskTrackerSchema);
 export default TaskTrackerModel;

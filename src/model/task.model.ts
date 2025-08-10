@@ -1,20 +1,20 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 const DaysOfWeek = [
-	'Sunday',
-	'Monday',
-	'Tuesday',
-	'Wednesday',
-	'Thursday',
-	'Friday',
-	'Saturday',
+	'sunday',
+	'monday',
+	'tuesday',
+	'wednesday',
+	'thursday',
+	'friday',
+	'saturday',
 ];
 export interface TaskModelInterface extends Document {
 	task: string;
 	category: Schema.Types.ObjectId;
-	done: boolean;
-	assignedDate: Schema.Types.Date;
-	completedAt: Schema.Types.Date;
+	done?: boolean;
+	assignedDate?: Schema.Types.Date;
+	completedAt?: Schema.Types.Date;
 	repeat?: (typeof DaysOfWeek)[number][];
 }
 
@@ -27,7 +27,7 @@ export const TaskSchema: Schema<TaskModelInterface> = new Schema(
 		},
 		done: {
 			type: Boolean,
-			default: false,
+			required: false,
 		},
 		repeat: {
 			type: [
@@ -36,7 +36,7 @@ export const TaskSchema: Schema<TaskModelInterface> = new Schema(
 					enum: DaysOfWeek,
 				},
 			],
-			default: [],
+			required: false,
 		},
 		task: {
 			type: String,
@@ -44,7 +44,7 @@ export const TaskSchema: Schema<TaskModelInterface> = new Schema(
 		},
 		assignedDate: {
 			type: Date,
-			default: Date.now,
+			required: false,
 		},
 		completedAt: {
 			type: Date,

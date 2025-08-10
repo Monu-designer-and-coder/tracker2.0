@@ -1,3 +1,13 @@
+const DaysOfWeek = [
+	'sunday',
+	'monday',
+	'tuesday',
+	'wednesday',
+	'thursday',
+	'friday',
+	'saturday',
+];
+
 export interface getSubjectResponse {
 	_id: string;
 	name: string;
@@ -30,4 +40,24 @@ export interface getSubjectWiseChapterResponse extends getSubjectResponse {
 		PYQ: boolean;
 		ExtraMaterial: boolean;
 	}[];
+}
+
+export interface getTaskCategoryResponse {
+	category: string;
+	_id: string;
+}
+export interface getTaskResponse {
+	_id: string;
+	task: string;
+	category: string;
+	done?: boolean;
+	assignedDate?: Date;
+	completedAt?: Date;
+	repeat?: (typeof DaysOfWeek)[number][];
+}
+export interface getTaskTrackerResponse {
+	_id: string;
+	tasks: string;
+	date: Date;
+	status: 'past' | 'current';
 }
