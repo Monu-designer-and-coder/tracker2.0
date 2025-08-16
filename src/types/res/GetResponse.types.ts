@@ -57,7 +57,14 @@ export interface getTaskResponse {
 }
 export interface getTaskTrackerResponse {
 	_id: string;
-	tasks: string;
-	date: Date;
-	status: 'past' | 'current';
+	taskDetails: {
+		_id: string;
+		category: string;
+		task: string;
+		done: boolean;
+		assignedDate: string;
+	}[];
+	totalTaskAssigned: number;
+	totalTaskDone: number;
+	points: number;
 }
