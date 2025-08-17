@@ -14,8 +14,8 @@ export const TaskSchema = z.object({
 		.min(3, 'This field must be at least 3 character long'),
 	category: z.string(),
 	done: z.boolean().optional(),
-	assignDate: z.coerce.date().optional(),
-	completedDate: z.coerce.date().optional(),
+	assignDate: z.date().optional(),
+	completedDate: z.date().optional(),
 	repeat: z
 		.array(
 			z.enum([
@@ -31,6 +31,24 @@ export const TaskSchema = z.object({
 		)
 		.optional(),
 });
+export const TaskFormSchema = z.object({
+	task: z
+		.string()
+		.trim()
+		.min(3, 'This field must be at least 3 character long'),
+	category: z.string(),
+	done: z.boolean().optional(),
+	assignDate: z.date().optional(),
+	completedDate: z.date().optional(),
+	repeat: z.boolean().optional(),
+	sunday: z.boolean().optional(),
+	monday: z.boolean().optional(),
+	tuesday: z.boolean().optional(),
+	wednesday: z.boolean().optional(),
+	thursday: z.boolean().optional(),
+	friday: z.boolean().optional(),
+	saturday: z.boolean().optional(),
+});
 export const TaskPUTSchema = z.object({
 	id: z.string().optional(),
 	data: z.object({
@@ -41,8 +59,8 @@ export const TaskPUTSchema = z.object({
 			.optional(),
 		category: z.string().optional(),
 		done: z.boolean().optional(),
-		assignDate: z.coerce.date().optional(),
-		completedDate: z.coerce.date().optional(),
+		assignDate: z.date().optional(),
+		completedDate: z.date().optional(),
 		repeat: z
 			.array(
 				z.enum([
@@ -61,7 +79,7 @@ export const TaskPUTSchema = z.object({
 });
 
 export const TaskTrackerSchema = z.object({
-	date: z.coerce.date(),
+	date: z.date(),
 	task: z.string(),
 	status: z.enum(['current', 'past']),
 });
@@ -69,7 +87,7 @@ export const TaskTrackerSchema = z.object({
 export const TaskTrackerPUTSchema = z.object({
 	id: z.string(),
 	data: z.object({
-		date: z.coerce.date().optional(),
+		date: z.date().optional(),
 		task: z.string().optional(),
 		status: z.enum(['current', 'past']).optional(),
 	}),
