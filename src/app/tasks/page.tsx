@@ -122,12 +122,6 @@ export default function App() {
 		axios.request(config).then((res: AxiosResponse<TaskModelInterface>) => {
 			setTodos((prevTodos) =>
 				prevTodos.map((todo) =>
-					todo.id === res.data._id ? { ...todo, text: res.data.task } : todo,
-				),
-			);
-			console.log(res);
-			console.log(
-				todos.map((todo) =>
 					todo.id == res.data._id ? { ...todo, text: res.data.task } : todo,
 				),
 			);
