@@ -387,22 +387,24 @@ const page = () => {
 					</Form>
 				</div>
 				<div className='w-11/12 h-[70%] flex items-center justify-around flex-col gap-3  overflow-y-scroll'>
-					{tasksList?.map((task) => (
-						<div
-							key={task._id}
-							className='flex w-full items-center justify-center'>
-							<Input value={task.task} disabled />
-							<div className='flex w-1/3 items-center justify-center flex-wrap'>
-								{task?.repeat?.map((day) => (
-									<Badge key={day}>
-										{day.charAt(0)}
-										{day.charAt(1)}
-										{day.charAt(2)}
-									</Badge>
-								))}
+					{tasksList
+						?.filter((task) => task.done === undefined)
+						?.map((task) => (
+							<div
+								key={task._id}
+								className='flex w-full items-center justify-center'>
+								<Input value={task.task} disabled />
+								<div className='flex w-1/3 items-center justify-center flex-wrap'>
+									{task?.repeat?.map((day) => (
+										<Badge key={day}>
+											{day.charAt(0)}
+											{day.charAt(1)}
+											{day.charAt(2)}
+										</Badge>
+									))}
+								</div>
 							</div>
-						</div>
-					))}
+						))}
 				</div>
 			</section>
 		</div>

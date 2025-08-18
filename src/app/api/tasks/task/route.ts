@@ -6,7 +6,11 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
 	await dbConn(); // Connect to the database
-	const body = await request.json();
+	const reqPayload = await request.json();
+	const body = { ...reqPayload };
+	if (body.assignedDate !== undefined) {
+		body.assignedDate = new Date(body.assignedDate);
+	}
 	// Validate the request body against the Zod schema
 	const validationResult = TaskSchema.safeParse(body);
 	if (!validationResult.success) {

@@ -14,7 +14,7 @@ export const TaskSchema = z.object({
 		.min(3, 'This field must be at least 3 character long'),
 	category: z.string(),
 	done: z.boolean().optional(),
-	assignDate: z.date().optional(),
+	assignedDate: z.date().optional(),
 	completedDate: z.date().optional(),
 	repeat: z
 		.array(
@@ -38,7 +38,7 @@ export const TaskFormSchema = z.object({
 		.min(3, 'This field must be at least 3 character long'),
 	category: z.string(),
 	done: z.boolean().optional(),
-	assignDate: z.date().optional(),
+	assignedDate: z.date().optional(),
 	completedDate: z.date().optional(),
 	repeat: z.boolean().optional(),
 	sunday: z.boolean().optional(),
@@ -59,7 +59,7 @@ export const TaskPUTSchema = z.object({
 			.optional(),
 		category: z.string().optional(),
 		done: z.boolean().optional(),
-		assignDate: z.date().optional(),
+		assignedDate: z.date().optional(),
 		completedDate: z.date().optional(),
 		repeat: z
 			.array(
