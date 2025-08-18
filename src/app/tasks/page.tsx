@@ -156,6 +156,7 @@ export default function App() {
 		axios
 			.get('/api/tasks/tracker?status=current')
 			.then((response: AxiosResponse<getTaskTrackerResponse>) => {
+				if(response.data.taskDetails)
 				setTodos(
 					response.data.taskDetails.map((task) => ({
 						id: task._id,
@@ -171,7 +172,7 @@ export default function App() {
 		resolver: zodResolver(TaskSchema),
 		defaultValues: {
 			task: '',
-			category: '68a2a46e268e36c52a4e9b37',
+			category: '68a37f3341b74120e0a50236',
 			done: false,
 			assignedDate: new Date(),
 		},
