@@ -57,7 +57,7 @@ export interface getTaskResponse {
 }
 export interface getTaskTrackerResponse {
 	_id: string;
-	taskDetails: {
+	taskDetails?: {
 		_id: string;
 		category: string;
 		task: string;
