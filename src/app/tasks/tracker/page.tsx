@@ -1,4 +1,5 @@
 'use client';
+import { Progress } from '@/components/ui/progress';
 import {
 	Table,
 	TableBody,
@@ -46,8 +47,9 @@ export default function page() {
 							<TableCell className='font-medium'>{data._id}</TableCell>
 							<TableCell>{data.totalTaskAssigned}</TableCell>
 							<TableCell>{data.totalTaskDone}</TableCell>
-							<TableCell className='text-right'>
+							<TableCell className='text-right flex items-center gap-2'>
 								{Math.round(data.points)}
+								<Progress value={data.points} />
 							</TableCell>
 						</TableRow>
 					))}

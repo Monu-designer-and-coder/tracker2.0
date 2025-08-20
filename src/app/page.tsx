@@ -18,6 +18,7 @@ const page = () => {
 	}
 
 	const [todos, setTodos] = useState<Todo[]>([]);
+	const [todaysPoints, setTodaysPoints] = useState<number>(0);
 
 	// Memoized sorted todos: incomplete first, then completed (with completed at the very bottom)
 	const sortedTodos = useMemo(() => {
@@ -59,17 +60,25 @@ const page = () => {
 				},
 			},
 		};
-		axios.request(config).then((res) => {
-			const updatedTodo = todos.map((todo) => {
-				if (todo.id == id) {
-					return {
-						...todo,
-						completed: !completed,
-					};
-				}
-				return todo;
-			});
-			setTodos(updatedTodo);
+		axios.request(config).then(() => {
+			axios
+				.get('/api/tasks/tracker?status=current')
+				.then((response: AxiosResponse<getTaskTrackerResponse>) => {
+					if (response.data.taskDetails) {
+						setTodos(
+							response.data.taskDetails.map((task) => ({
+								id: task._id,
+								text: task.task,
+								completed: task.done,
+							})),
+						);
+					}
+					console.log(response.data);
+					if (response.data.points){
+						setTodaysPoints(response.data.points);
+						console.log(todaysPoints);
+					}
+				});
 		});
 	};
 
@@ -146,13 +155,16 @@ const page = () => {
 		axios
 			.get('/api/tasks/tracker?status=current')
 			.then((response: AxiosResponse<getTaskTrackerResponse>) => {
-				setTodos(
-					response.data.taskDetails.map((task) => ({
-						id: task._id,
-						text: task.task,
-						completed: task.done,
-					})),
-				);
+				if (response.data.taskDetails) {
+					setTodos(
+						response.data.taskDetails.map((task) => ({
+							id: task._id,
+							text: task.task,
+							completed: task.done,
+						})),
+					);
+				}
+				if (response.data.points) setTodaysPoints(response.data.points);
 			});
 	}, []);
 	return (
@@ -201,7 +213,7 @@ const page = () => {
 				/>
 			</section>
 			<section className='w-11/12 h-4/5 flex items-center justify-center gap-5 relative'>
-				<div className='w-5/7 h-full flex flex-col items-center justify-center'>
+				<div className='w-5/7 h-full flex flex-col items-center gap-3 justify-center'>
 					<Button
 						onClick={() => {
 							axios
@@ -216,18 +228,23 @@ const page = () => {
 									axios
 										.get('/api/tasks/tracker?status=current')
 										.then((response: AxiosResponse<getTaskTrackerResponse>) => {
-											setTodos(
-												response.data.taskDetails.map((task) => ({
-													id: task._id,
-													text: task.task,
-													completed: task.done,
-												})),
-											);
+											if (response.data.taskDetails) {
+												setTodos(
+													response.data.taskDetails.map((task) => ({
+														id: task._id,
+														text: task.task,
+														completed: task.done,
+													})),
+												);
+											}
+											if (response.data.points)
+												setTodaysPoints(response.data.points);
 										});
 								});
 						}}>
 						Day Packup
 					</Button>
+					<Progress value={todaysPoints} />
 					<div className='space-y-3 overflow-y-scroll h-[80%] w-full'>
 						{sortedTodos.length === 0 ? (
 							<div className='text-center py-10 text-zinc-500 dark:text-zinc-400'>
