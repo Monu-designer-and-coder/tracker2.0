@@ -53,6 +53,8 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 		minutes: initialPomodoroDuration,
 		seconds: 0,
 	});
+	const [timeLeftPercent, setTimeLeftPercent] = useState<number>(100);
+	const [initialTime, setInitialTime] = useState<number>(100);
 	// * State to control if the timer is currently active (running).
 	const [isActive, setIsActive] = useState<boolean>(false);
 	// * State to track the current mode of the timer ('pomodoro', 'shortBreak', 'longBreak').
@@ -81,12 +83,20 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 		[pomodoroDuration, shortBreakDuration, longBreakDuration],
 	);
 
+	useEffect(() => {
+		const totalSecondsLeft = timeLeft.minutes * 60 + timeLeft.seconds;
+		const initialSeconds = initialTime * 60;
+		const value = (totalSecondsLeft * 100) / initialSeconds;
+		setTimeLeftPercent(Math.round(100 - value));
+	}, [timeLeft, initialTime]);
+
 	// * useCallback hook for a memoized function to reset the timer.
 	// ? It sets isActive to false, clears any running interval, and resets timeLeft based on the current mode.
 	const resetTimer = useCallback(() => {
 		setIsActive(false); // Stop the timer.
 		const duration = getDurationForMode(mode); // Get the correct duration for the current mode.
 		setTimeLeft({ minutes: duration, seconds: 0 }); // Reset time.
+		setInitialTime(duration);
 		if (intervalRef.current) {
 			clearInterval(intervalRef.current); // Clear any existing interval.
 		}
@@ -156,6 +166,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 		if (timeLeft.minutes === 0 && timeLeft.seconds === 0) {
 			const duration = getDurationForMode(mode);
 			setTimeLeft({ minutes: duration, seconds: 0 });
+			setInitialTime(duration);
 		}
 		setIsActive(!isActive); // * Toggle the active state (start if paused, pause if active).
 	};
@@ -171,6 +182,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 			// * If currently in Pomodoro mode, update the displayed time and pause.
 			if (mode === 'pomodoro') {
 				setTimeLeft({ minutes: value, seconds: 0 });
+				setInitialTime(value);
 				setIsActive(false);
 			}
 		}
@@ -185,6 +197,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 			// * If currently in Short Break mode, update the displayed time and pause.
 			if (mode === 'shortBreak') {
 				setTimeLeft({ minutes: value, seconds: 0 });
+				setInitialTime(value);
 				setIsActive(false);
 			}
 		}
@@ -199,6 +212,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 			// * If currently in Long Break mode, update the displayed time and pause.
 			if (mode === 'longBreak') {
 				setTimeLeft({ minutes: value, seconds: 0 });
+				setInitialTime(value);
 				setIsActive(false);
 			}
 		}
@@ -221,7 +235,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 		<Card
 			className={cn(
 				'flex flex-col items-center justify-center p-6 rounded-3xl', // * Layout and padding.
-				'bg-rose-50 dark:bg-zinc-900 shadow-xl', // * Background colors for light and dark mode, with shadow.
+				'bg-pink-100 dark:bg-zinc-900 shadow-xl', // * Background colors for light and dark mode, with shadow.
 				'text-rose-900 dark:text-rose-100', // * Text colors for light and dark mode.
 				'max-w-md mx-auto', // * Constrains width and centers the component horizontally.
 			)}>
@@ -229,15 +243,15 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 			<div
 				className={cn(
 					'relative flex items-center justify-center rounded-full border-4', // * Circular shape, centered content, border.
-					'border-rose-300 dark:border-rose-700', // * Border colors for light and dark mode.
-					'bg-rose-100 dark:bg-rose-900', // * Inner background of the circle for light and dark mode.
+					'border-red-700', // * Border colors for light and dark mode.
+					`bg-gradient-to-b from-red-700 to-red-200 from-[${timeLeftPercent}%] to-[${timeLeftPercent}%] `, // * Inner background of the circle for light and dark mode.
 					currentSizeClass, // * Applies the dynamically determined size (w-X h-X text-Yxl).
 					'transition-all duration-300 ease-in-out', // * Smooth transitions for size changes.
 				)}>
 				<span
 					className={cn(
 						'font-mono font-bold', // * Monospace font for digits, bold text.
-						'text-rose-800 dark:text-rose-200', // * Text color for the time display.
+						'text-rose-400', // * Text color for the time display.
 					)}>
 					{String(timeLeft.minutes).padStart(2, '0')}:
 					{String(timeLeft.seconds).padStart(2, '0')}
