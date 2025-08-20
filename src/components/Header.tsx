@@ -55,6 +55,7 @@ function Header({ className = '' }: { className?: String }) {
 			{/* Desktop Menu */}
 			<nav className='hidden md:flex gap-6 dark:text-white'>
 				<Link href='/'>Home</Link>
+				<Link href='/pomodoro'>Focus</Link>
 				<Link href='/dashboard'>Dashboard</Link>
 				<Link href='/tasks'>Tasks</Link>
 			</nav>
@@ -75,6 +76,12 @@ function Header({ className = '' }: { className?: String }) {
 								href='/'
 								onClick={() => setOpen(false)}>
 								Home
+							</Link>
+							<Link
+								className='w-full border border-y-1 border-x-0 p-10'
+								href='/pomodoro'
+								onClick={() => setOpen(false)}>
+								Focus
 							</Link>
 							<Link
 								className='w-full border border-y-1 border-x-0 p-10'

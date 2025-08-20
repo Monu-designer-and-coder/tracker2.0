@@ -1,4 +1,5 @@
 'use client';
+import PomodoroTimer from '@/components/Pomodoro-timer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -35,6 +36,10 @@ const page = () => {
 	// State to hold the target time
 	const targetTime = new Date('November 31, 2025 00:00:00');
 	const startTime = new Date('May 27, 2024 00:00:00');
+	const differenceInMilliseconds = targetTime.getTime() - startTime.getTime();
+	const differenceInDays = Math.floor(
+		differenceInMilliseconds / (1000 * 60 * 60 * 24),
+	);
 
 	const [date, setDate] = React.useState<Date | undefined>(new Date());
 	// State to hold the progress value
@@ -74,7 +79,7 @@ const page = () => {
 						);
 					}
 					console.log(response.data);
-					if (response.data.points){
+					if (response.data.points) {
 						setTodaysPoints(response.data.points);
 						console.log(todaysPoints);
 					}
@@ -168,7 +173,7 @@ const page = () => {
 			});
 	}, []);
 	return (
-		<div className='w-full h-full flex justify-start flex-col items-center py-5'>
+		<div className='w-full h-full flex gap-3 justify-start flex-col items-center py-5'>
 			<section className='w-11/12 h-1/5 flex items-center justify-center gap-5 relative'>
 				<div className='border border-black relative dark:border-white rounded-4xl w-1/5 h-4/5 flex items-center justify-center text-7xl text-rose-950 dark:text-rose-100 '>
 					<Badge
@@ -176,7 +181,7 @@ const page = () => {
 						className='text-xl absolute -top-1.5 -left-1.5 rounded-full'>
 						Days
 					</Badge>
-					{timeLeftDetails.days}
+					{timeLeftDetails.days}/{differenceInDays}
 				</div>
 				<div className='border border-black relative dark:border-white rounded-4xl w-1/5 h-4/5 flex items-center justify-center text-7xl text-rose-950 dark:text-rose-100 '>
 					<Badge
@@ -296,7 +301,7 @@ const page = () => {
 						)}
 					</div>
 				</div>
-				<div className='w-2/7 h-full flex flex-col items-center justify-center'>
+				<div className='w-2/7 h-full flex flex-col items-center justify-center gap-1 py-2 my-2'>
 					<div className='flex items-center justify-center w-full '>
 						<div className='border border-black relative dark:border-white rounded-4xl w-1/3 h-4/5 flex items-center justify-center text-4xl text-rose-950 dark:text-rose-100 '>
 							{clockTimeDetails.hours}
