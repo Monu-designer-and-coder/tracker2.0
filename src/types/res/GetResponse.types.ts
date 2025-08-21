@@ -55,8 +55,13 @@ export interface getTaskResponse {
 	completedAt?: Date;
 	repeat?: (typeof DaysOfWeek)[number][];
 }
+
+// ! API Response Types
+// ? This file defines the response interfaces for various API endpoints.
+
+// * Common structure for daily/all-time task tracker responses
 export interface getTaskTrackerResponse {
-	_id: string;
+	_id: string; // The date string (e.g., "2025-08-21")
 	taskDetails?: {
 		_id: string;
 		category: string;
@@ -67,4 +72,32 @@ export interface getTaskTrackerResponse {
 	totalTaskAssigned: number;
 	totalTaskDone: number;
 	points: number;
+}
+
+// * Defines the structure for a single day's breakdown within a weekly report
+export interface WeeklyDayBreakdown {
+    day: string; // The date string (e.g., "2025-08-21")
+    dayName: string; // The name of the day (e.g., "Thursday")
+    taskDetails: {
+        _id: string;
+        category: string;
+        task: string;
+        done: boolean;
+        assignedDate: string;
+    }[];
+    totalTaskAssigned: number;
+    totalTaskDone: number;
+    points: number;
+}
+
+// * Defines the structure for the weekly task tracker response
+export interface getWeeklyTaskTrackerResponse {
+    _id: {
+        week: number;
+        year: number;
+    };
+    weeklyBreakdown: WeeklyDayBreakdown[];
+    totalTasksAssignedWeekly: number;
+    totalTasksDoneWeekly: number;
+    weeklyPoints: number;
 }
