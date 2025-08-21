@@ -6,54 +6,74 @@ import { TaskCategorySchema } from '@/schema/tasks.schema';
 import { getTaskCategoryResponse } from '@/types/res/GetResponse.types';
 import { NextResponse } from 'next/server';
 
+/**
+ * ! Create a new task category
+ */
 export async function POST(request: Request) {
-	await dbConn(); // Connect to the database
-	const body = await request.json();
-	// Validate the request body against the Zod schema
-	const validationResult = TaskCategorySchema.safeParse(body);
+	await dbConn();
+
+	const requestBody = await request.json();
+	const validationResult = TaskCategorySchema.safeParse(requestBody);
+
 	if (!validationResult.success) {
-		// If validation fails, return a 400 response with the validation errors
 		return NextResponse.json(
-			{ errors: validationResult.error },
+			{ errors: validationResult.error.format() },
 			{ status: 400 },
 		);
 	}
+
 	try {
-		const taskCategory = new TaskCategoryModel(validationResult.data);
-		const result = await taskCategory.save();
-		return NextResponse.json<TaskCategoryModelInterface>(result, {
+		const createdCategory = await TaskCategoryModel.create(
+			validationResult.data,
+		);
+		return NextResponse.json<TaskCategoryModelInterface>(createdCategory, {
 			status: 201,
 		});
 	} catch (err) {
-		return NextResponse.json({ err, validationResult }, { status: 500 });
+		return NextResponse.json({ error: err }, { status: 500 });
 	}
 }
 
+/**
+ * ! Get all task categories
+ */
 export async function GET() {
-	await dbConn(); // Connect to the database
-	const aggregatedData: getTaskCategoryResponse[] =
-		await TaskCategoryModel.aggregate([
-			{
-				$project: {
-					_id: 1,
-					category: 1,
-				},
-			},
-		]);
-	return NextResponse.json(aggregatedData);
+	await dbConn();
+
+	const categories: getTaskCategoryResponse[] =
+		await TaskCategoryModel.aggregate([{ $project: { _id: 1, category: 1 } }]);
+
+	return NextResponse.json(categories);
 }
 
+/**
+ * ! Delete task category by ID
+ */
 export async function DELETE(request: Request) {
-	await dbConn(); // Connect to the database
+	await dbConn();
+
 	const { searchParams } = new URL(request.url);
-	const id = searchParams.get('id');
-	const deletedTaskCategory = await TaskCategoryModel.findByIdAndDelete(id);
-	if (!deletedTaskCategory)
+	const categoryId = searchParams.get('id');
+
+	const deletedCategory = await TaskCategoryModel.findByIdAndDelete(categoryId);
+
+	if (!deletedCategory) {
 		return NextResponse.json(
-			{ message: 'TaskCategory not found' },
+			{ message: 'Task category not found' },
 			{ status: 404 },
 		);
-	return NextResponse.json({
-		message: 'TaskCategory deleted successfully',
-	});
+	}
+
+	return NextResponse.json({ message: 'Task category deleted successfully' });
 }
+
+/*
+ ! IMPROVEMENTS IMPLEMENTED:
+ * 1. Unified naming for clarity (body → requestBody, id → categoryId).
+ * 2. Used .create() for brevity and atomic operation.
+ * 3. Added Better Comments & JSDoc for maintainability.
+
+  ! FUTURE IMPROVEMENTS:
+  TODO: Add validation to prevent deletion of categories still linked to tasks.
+  TODO: Support pagination if categories grow large.
+*/
