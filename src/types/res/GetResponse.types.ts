@@ -42,6 +42,33 @@ export interface getSubjectWiseChapterResponse extends getSubjectResponse {
 	}[];
 }
 
+export interface getNestedDetailedData {
+	subjectId: string; // subject ID
+	name: string; // Subject Name
+	standard: string;
+	chapters: {
+		_id: string;
+		name: string;
+		seqNumber: number;
+		done: boolean;
+		selectionDiary: boolean;
+		onePager: boolean;
+		DPP: boolean;
+		Module: boolean;
+		PYQ: boolean;
+		ExtraMaterial: boolean;
+		topics: {
+			_id: string;
+			name: string;
+			seqNumber: number;
+			done: boolean;
+			boards: boolean;
+			mains: boolean;
+			advanced: boolean;
+		}[];
+	}[];
+}
+
 export interface getTaskCategoryResponse {
 	category: string;
 	_id: string;
@@ -76,28 +103,28 @@ export interface getTaskTrackerResponse {
 
 // * Defines the structure for a single day's breakdown within a weekly report
 export interface WeeklyDayBreakdown {
-    day: string; // The date string (e.g., "2025-08-21")
-    dayName: string; // The name of the day (e.g., "Thursday")
-    taskDetails: {
-        _id: string;
-        category: string;
-        task: string;
-        done: boolean;
-        assignedDate: string;
-    }[];
-    totalTaskAssigned: number;
-    totalTaskDone: number;
-    points: number;
+	day: string; // The date string (e.g., "2025-08-21")
+	dayName: string; // The name of the day (e.g., "Thursday")
+	taskDetails: {
+		_id: string;
+		category: string;
+		task: string;
+		done: boolean;
+		assignedDate: string;
+	}[];
+	totalTaskAssigned: number;
+	totalTaskDone: number;
+	points: number;
 }
 
 // * Defines the structure for the weekly task tracker response
 export interface getWeeklyTaskTrackerResponse {
-    _id: {
-        week: number;
-        year: number;
-    };
-    weeklyBreakdown: WeeklyDayBreakdown[];
-    totalTasksAssignedWeekly: number;
-    totalTasksDoneWeekly: number;
-    weeklyPoints: number;
+	_id: {
+		week: number;
+		year: number;
+	};
+	weeklyBreakdown: WeeklyDayBreakdown[];
+	totalTasksAssignedWeekly: number;
+	totalTasksDoneWeekly: number;
+	weeklyPoints: number;
 }
