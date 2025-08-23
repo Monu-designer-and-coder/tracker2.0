@@ -224,10 +224,8 @@ const HomePage: React.FC = () => {
 				);
 				// * Update running day for automation of the dayPackup.
 				setTodoItems(transformedTasks);
-				if (!response.data.taskDetails.length) {
-					const curDate = new Date(response.data.taskDetails[0].assignedDate);
-					setCurrentDateInBackend(curDate.getDate());
-				}
+				const curDate = new Date(response.data.taskDetails[0].assignedDate);
+				setCurrentDateInBackend(curDate.getDate());
 			}
 
 			// * Update daily points if available
@@ -349,7 +347,7 @@ const HomePage: React.FC = () => {
 			minutes: currentDate.getMinutes(),
 			seconds: currentDate.getSeconds(),
 		};
-		if (currentDate.getDate() !== currentDateInBackend ) {
+		if (currentDate.getDate() !== currentDateInBackend) {
 			handleDayPackup();
 		}
 		setCurrentTimeDetails(currentTimeData);
