@@ -101,6 +101,13 @@ const HomePage: React.FC = () => {
 	 * ? Represents user's progress/score for the current day
 	 */
 	const [dailyPoints, setDailyPoints] = useState<number>(0);
+	/**
+	 * * Today's day to packup the day automatically.
+	 * ? Represents the date of current day
+	 */
+	const [currentDateInBackend, setCurrentDateInBackend] = useState<number>(
+		new Date().getDate(),
+	);
 
 	/**
 	 * * Calendar selection state
@@ -215,7 +222,12 @@ const HomePage: React.FC = () => {
 						completed: task.done,
 					}),
 				);
+				// * Update running day for automation of the dayPackup.
 				setTodoItems(transformedTasks);
+				if (!response.data.taskDetails.length) {
+					const curDate = new Date(response.data.taskDetails[0].assignedDate);
+					setCurrentDateInBackend(curDate.getDate());
+				}
 			}
 
 			// * Update daily points if available
@@ -337,7 +349,7 @@ const HomePage: React.FC = () => {
 			minutes: currentDate.getMinutes(),
 			seconds: currentDate.getSeconds(),
 		};
-		if (currentTimeData.hours === 0) {
+		if (currentDate.getDate() !== currentDateInBackend ) {
 			handleDayPackup();
 		}
 		setCurrentTimeDetails(currentTimeData);
