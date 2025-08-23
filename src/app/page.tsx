@@ -347,9 +347,6 @@ const HomePage: React.FC = () => {
 			minutes: currentDate.getMinutes(),
 			seconds: currentDate.getSeconds(),
 		};
-		if (currentDate.getDate() !== currentDateInBackend) {
-			handleDayPackup();
-		}
 		setCurrentTimeDetails(currentTimeData);
 	}, [countdownTimeLeft]);
 
