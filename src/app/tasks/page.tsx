@@ -89,8 +89,6 @@ interface TaskStatistics {
 	completionRate: number;
 }
 
-// Default category ID - should be moved to environment variables in production
-const DEFAULT_CATEGORY_ID = '68a37f3341b74120e0a50236';
 
 // Main Tasks Page Component with Enhanced UI/UX
 export default function TasksMainPage() {
@@ -145,7 +143,7 @@ export default function TasksMainPage() {
 		resolver: zodResolver(TaskSchema),
 		defaultValues: {
 			task: '',
-			category: DEFAULT_CATEGORY_ID,
+			category: '',
 			done: false,
 			assignedDate: new Date(),
 		},
@@ -205,6 +203,8 @@ export default function TasksMainPage() {
 			const response: AxiosResponse<getTaskTrackerResponse> = await axios.get(
 				'/api/tasks/tracker?status=current',
 			);
+
+			if (response.data === null) return;
 
 			if (response.data.taskDetails) {
 				const formattedTodos: TodoItem[] = response.data.taskDetails.map(
@@ -505,6 +505,27 @@ export default function TasksMainPage() {
 												<Input
 													type='text'
 													placeholder='✨ What amazing thing will you accomplish today?'
+													disabled={isLoading}
+													{...field}
+													className='pl-4 pr-12 py-3 rounded-xl border-blue-200/50 dark:border-blue-700/50 focus:ring-2 focus:ring-blue-400/50 focus:border-transparent dark:focus:ring-blue-500/50 bg-white/80 dark:bg-zinc-800/80 text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-md focus:shadow-lg'
+												/>
+												<Sparkles className='absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-400/60 dark:text-blue-300/60' />
+											</div>
+										</FormControl>
+										<FormMessage className='text-red-500 text-sm mt-1' />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={addTodoForm.control}
+								name='category'
+								render={({ field }) => (
+									<FormItem className='flex-grow w-full'>
+										<FormControl>
+											<div className='relative'>
+												<Input
+													type='text'
+													placeholder='✨ Enter the Category ID for your task: [Go copy it from categories page]'
 													disabled={isLoading}
 													{...field}
 													className='pl-4 pr-12 py-3 rounded-xl border-blue-200/50 dark:border-blue-700/50 focus:ring-2 focus:ring-blue-400/50 focus:border-transparent dark:focus:ring-blue-500/50 bg-white/80 dark:bg-zinc-800/80 text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-md focus:shadow-lg'
