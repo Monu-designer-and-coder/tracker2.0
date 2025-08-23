@@ -213,6 +213,9 @@ const HomePage: React.FC = () => {
 				'/api/tasks/tracker?status=current',
 			);
 
+			// ! Check weather the response.data is null or not
+			if (response.data === null ) return;
+
 			// * Update todo items if task details exist
 			if (response.data.taskDetails) {
 				const transformedTasks: TodoItem[] = response.data.taskDetails.map(
