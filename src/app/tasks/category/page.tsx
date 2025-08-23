@@ -1,13 +1,5 @@
 'use client';
 
-// TODO: Implement task search and filtering capabilities
-// TODO: Add bulk operations for task management
-// TODO: Integrate real-time updates using WebSocket
-// TODO: Add task templates for common categories
-// TODO: Implement task analytics and insights
-// TODO: Add export functionality for task data
-// TODO: Implement offline support with service workers
-
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,6 +13,8 @@ import {
 	AlertCircle,
 	Loader2,
 	Sparkles,
+	Edit,
+	Trash2,
 } from 'lucide-react';
 import { z } from 'zod';
 
@@ -28,6 +22,26 @@ import { z } from 'zod';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import {
 	FormField,
 	Form,
@@ -42,6 +56,8 @@ import {
 	TaskCategorySchema,
 	TaskFormSchema,
 	TaskSchema,
+	TaskCategoryPUTSchema,
+	TaskPUTSchema,
 } from '@/schema/tasks.schema';
 import {
 	getTaskCategoryResponse,
@@ -62,6 +78,10 @@ interface LoadingStates {
 	tasks: boolean;
 	submittingCategory: boolean;
 	submittingTask: boolean;
+	updatingCategory: boolean;
+	updatingTask: boolean;
+	deletingCategory: boolean;
+	deletingTask: boolean;
 }
 
 // 🎨 Days of week configuration for better maintainability
@@ -86,11 +106,21 @@ const TaskCategoryManagementPage: React.FC = () => {
 		tasks: true,
 		submittingCategory: false,
 		submittingTask: false,
+		updatingCategory: false,
+		updatingTask: false,
+		deletingCategory: false,
+		deletingTask: false,
 	});
 	const [errorMessages, setErrorMessages] = useState<{
 		categories?: string;
 		tasks?: string;
 	}>({});
+
+	// Dialog state management
+	const [editingCategory, setEditingCategory] = useState<string | null>(null);
+	const [editingTask, setEditingTask] = useState<string | null>(null);
+	const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+	const [taskDialogOpen, setTaskDialogOpen] = useState(false);
 
 	// 🔧 Memoized axios configuration for better performance
 	const axiosConfig = useMemo(
@@ -112,10 +142,35 @@ const TaskCategoryManagementPage: React.FC = () => {
 		defaultValues: {
 			category: '',
 		},
-		mode: 'onBlur', // Better UX with validation on blur
+		mode: 'onBlur',
 	});
 
 	const taskCreationForm = useForm<z.infer<typeof TaskFormSchema>>({
+		resolver: zodResolver(TaskFormSchema),
+		defaultValues: {
+			task: '',
+			category: '',
+			sunday: false,
+			monday: false,
+			tuesday: false,
+			wednesday: false,
+			thursday: false,
+			friday: false,
+			saturday: false,
+		},
+		mode: 'onBlur',
+	});
+
+	// Edit forms
+	const categoryEditForm = useForm<z.infer<typeof TaskCategorySchema>>({
+		resolver: zodResolver(TaskCategorySchema),
+		defaultValues: {
+			category: '',
+		},
+		mode: 'onBlur',
+	});
+
+	const taskEditForm = useForm<z.infer<typeof TaskFormSchema>>({
 		resolver: zodResolver(TaskFormSchema),
 		defaultValues: {
 			task: '',
@@ -179,7 +234,6 @@ const TaskCategoryManagementPage: React.FC = () => {
 
 				const response = await axios.request(requestConfig);
 
-				// ✅ Optimized state update
 				setTaskCategoriesData((currentCategories) => [
 					...currentCategories,
 					{
@@ -188,11 +242,9 @@ const TaskCategoryManagementPage: React.FC = () => {
 					},
 				]);
 
-				// 🎉 Success feedback
 				taskCategoryForm.reset();
 			} catch (error) {
 				console.error('❌ Category creation failed:', error);
-				// TODO: Add toast notification for error feedback
 			} finally {
 				setLoadingStates((prev) => ({ ...prev, submittingCategory: false }));
 			}
@@ -206,7 +258,6 @@ const TaskCategoryManagementPage: React.FC = () => {
 			try {
 				setLoadingStates((prev) => ({ ...prev, submittingTask: true }));
 
-				// 🔧 Optimized repeat array creation
 				const selectedDays = DAYS_OF_WEEK.filter(
 					(day) => formValues[day.key as keyof typeof formValues],
 				).map((day) => day.key);
@@ -226,7 +277,6 @@ const TaskCategoryManagementPage: React.FC = () => {
 
 				const response = await axios.request(requestConfig);
 
-				// ✅ Optimized state update
 				setTasksListData((currentTasks) => [
 					...currentTasks,
 					{
@@ -237,11 +287,9 @@ const TaskCategoryManagementPage: React.FC = () => {
 					},
 				]);
 
-				// 🎉 Success feedback and form reset
 				taskCreationForm.reset();
 			} catch (error) {
 				console.error('❌ Task creation failed:', error);
-				// TODO: Add toast notification for error feedback
 			} finally {
 				setLoadingStates((prev) => ({ ...prev, submittingTask: false }));
 			}
@@ -249,14 +297,189 @@ const TaskCategoryManagementPage: React.FC = () => {
 		[axiosConfig, taskCreationForm],
 	);
 
+	// Edit category handler
+	const handleCategoryEdit = useCallback(
+		async (formValues: z.infer<typeof TaskCategorySchema>) => {
+			if (!editingCategory) return;
+
+			try {
+				setLoadingStates((prev) => ({ ...prev, updatingCategory: true }));
+
+				const requestConfig = {
+					...axiosConfig,
+					method: 'put',
+					url: '/api/tasks/category',
+					data: {
+						id: editingCategory,
+						data: {
+							category: formValues.category,
+						},
+					},
+				};
+
+				const response = await axios.request(requestConfig);
+
+				setTaskCategoriesData((currentCategories) =>
+					currentCategories.map((cat) =>
+						cat._id === editingCategory
+							? { ...cat, category: response.data.category }
+							: cat,
+					),
+				);
+
+				setCategoryDialogOpen(false);
+				setEditingCategory(null);
+				categoryEditForm.reset();
+			} catch (error) {
+				console.error('❌ Category update failed:', error);
+			} finally {
+				setLoadingStates((prev) => ({ ...prev, updatingCategory: false }));
+			}
+		},
+		[editingCategory, axiosConfig, categoryEditForm],
+	);
+
+	// Edit task handler
+	const handleTaskEdit = useCallback(
+		async (formValues: z.infer<typeof TaskFormSchema>) => {
+			if (!editingTask) return;
+
+			try {
+				setLoadingStates((prev) => ({ ...prev, updatingTask: true }));
+
+				const selectedDays = DAYS_OF_WEEK.filter(
+					(day) => formValues[day.key as keyof typeof formValues],
+				).map((day) => day.key);
+
+				const updateData: any = {};
+				if (formValues.task) updateData.task = formValues.task;
+				if (formValues.category) updateData.category = formValues.category;
+				if (selectedDays.length > 0) updateData.repeat = selectedDays;
+
+				const requestConfig = {
+					...axiosConfig,
+					method: 'put',
+					url: '/api/tasks/task',
+					data: {
+						id: editingTask,
+						data: updateData,
+					},
+				};
+
+				const response = await axios.request(requestConfig);
+
+				setTasksListData((currentTasks) =>
+					currentTasks.map((task) =>
+						task._id === editingTask ? { ...task, ...response.data } : task,
+					),
+				);
+
+				setTaskDialogOpen(false);
+				setEditingTask(null);
+				taskEditForm.reset();
+			} catch (error) {
+				console.error('❌ Task update failed:', error);
+			} finally {
+				setLoadingStates((prev) => ({ ...prev, updatingTask: false }));
+			}
+		},
+		[editingTask, axiosConfig, taskEditForm],
+	);
+
+	// Delete category handler
+	const handleCategoryDelete = useCallback(async (categoryId: string) => {
+		try {
+			setLoadingStates((prev) => ({ ...prev, deletingCategory: true }));
+
+			await axios.delete(`/api/tasks/category?id=${categoryId}`);
+
+			setTaskCategoriesData((currentCategories) =>
+				currentCategories.filter((cat) => cat._id !== categoryId),
+			);
+		} catch (error) {
+			console.error('❌ Category deletion failed:', error);
+		} finally {
+			setLoadingStates((prev) => ({ ...prev, deletingCategory: false }));
+		}
+	}, []);
+
+	// Delete task handler
+	const handleTaskDelete = useCallback(async (taskId: string) => {
+		try {
+			setLoadingStates((prev) => ({ ...prev, deletingTask: true }));
+
+			await axios.delete(`/api/tasks/task?id=${taskId}`);
+
+			setTasksListData((currentTasks) =>
+				currentTasks.filter((task) => task._id !== taskId),
+			);
+		} catch (error) {
+			console.error('❌ Task deletion failed:', error);
+		} finally {
+			setLoadingStates((prev) => ({ ...prev, deletingTask: false }));
+		}
+	}, []);
+
+	// Helper to check if category is used by tasks
+	const getCategoryUsage = useCallback(
+		(categoryId: string) => {
+			return tasksListData.filter(
+				(task) => task.category === categoryId || task.category === categoryId,
+			);
+		},
+		[tasksListData],
+	);
+
+	// Open edit category dialog
+	const openCategoryEditDialog = useCallback(
+		(category: getTaskCategoryResponse) => {
+			setEditingCategory(category._id);
+			categoryEditForm.setValue('category', category.category);
+			setCategoryDialogOpen(true);
+		},
+		[categoryEditForm],
+	);
+
+	// Open edit task dialog
+	const openTaskEditDialog = useCallback(
+		(task: getTaskResponse) => {
+			setEditingTask(task._id);
+			taskEditForm.setValue('task', task.task);
+			taskEditForm.setValue(
+				'category',
+				typeof task.category === 'string' ? task.category : task.category,
+			);
+
+			// Reset all days first
+			DAYS_OF_WEEK.forEach((day) => {
+				taskEditForm.setValue(
+					day.key as keyof z.infer<typeof TaskFormSchema>,
+					false,
+				);
+			});
+
+			// Set selected days
+			if (task.repeat) {
+				task.repeat.forEach((day) => {
+					if (day) {
+						taskEditForm.setValue(
+							day as keyof z.infer<typeof TaskFormSchema>,
+							true,
+						);
+					}
+				});
+			}
+			setTaskDialogOpen(true);
+		},
+		[taskEditForm],
+	);
+
 	// 📋 Enhanced copy to clipboard functionality
 	const handleCopyToClipboard = useCallback(async (categoryId: string) => {
 		try {
 			await navigator.clipboard.writeText(categoryId);
-			// TODO: Add toast notification for success feedback
 		} catch (error) {
 			console.error('❌ Failed to copy to clipboard:', error);
-			// TODO: Add toast notification for error feedback
 		}
 	}, []);
 
@@ -333,7 +556,6 @@ const TaskCategoryManagementPage: React.FC = () => {
 				<div className='flex-1 bg-white/30 dark:bg-black/10 backdrop-blur-sm rounded-xl border border-white/20 dark:border-white/10 p-4 overflow-hidden'>
 					<div className='h-full overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500/30 scrollbar-track-transparent'>
 						{loadingStates.categories ? (
-							// 💀 Loading skeleton
 							<div className='space-y-3'>
 								{[...Array(3)].map((_, index) => (
 									<div key={index} className='flex items-center gap-3'>
@@ -344,28 +566,177 @@ const TaskCategoryManagementPage: React.FC = () => {
 							</div>
 						) : taskCategoriesData.length > 0 ? (
 							<div className='space-y-3'>
-								{taskCategoriesData.map((categoryItem) => (
-									<div
-										key={categoryItem._id}
-										className='flex items-center gap-3 p-3 bg-white/40 dark:bg-black/20 backdrop-blur-sm rounded-lg border border-white/30 dark:border-white/10 hover:bg-white/60 dark:hover:bg-black/30 transition-all duration-200 group'>
-										<Input
-											value={categoryItem.category}
-											disabled
-											className='flex-1 bg-transparent border-none text-gray-800 dark:text-gray-200 font-medium'
-										/>
-										<Button
-											variant='ghost'
-											size='sm'
-											onClick={() => handleCopyToClipboard(categoryItem._id)}
-											className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-blue-100 dark:hover:bg-blue-900/30'
-											title='Copy Category ID'>
-											<Clipboard className='w-4 h-4 text-blue-600' />
-										</Button>
-									</div>
-								))}
+								{taskCategoriesData.map((categoryItem) => {
+									const usedInTasks = getCategoryUsage(categoryItem._id);
+									return (
+										<div
+											key={categoryItem._id}
+											className='flex items-center gap-3 p-3 bg-white/40 dark:bg-black/20 backdrop-blur-sm rounded-lg border border-white/30 dark:border-white/10 hover:bg-white/60 dark:hover:bg-black/30 transition-all duration-200 group'>
+											<Input
+												value={categoryItem.category}
+												disabled
+												className='flex-1 bg-transparent border-none text-gray-800 dark:text-gray-200 font-medium'
+											/>
+											<div className='flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
+												<Button
+													variant='ghost'
+													size='sm'
+													onClick={() =>
+														handleCopyToClipboard(categoryItem._id)
+													}
+													className='hover:bg-blue-100 dark:hover:bg-blue-900/30'
+													title='Copy Category ID'>
+													<Clipboard className='w-4 h-4 text-blue-600' />
+												</Button>
+
+												<Dialog
+													open={
+														categoryDialogOpen &&
+														editingCategory === categoryItem._id
+													}
+													onOpenChange={(open) => {
+														setCategoryDialogOpen(open);
+														if (!open) setEditingCategory(null);
+													}}>
+													<DialogTrigger asChild>
+														<Button
+															variant='ghost'
+															size='sm'
+															onClick={() =>
+																openCategoryEditDialog(categoryItem)
+															}
+															className='hover:bg-yellow-100 dark:hover:bg-yellow-900/30'
+															title='Edit Category'>
+															<Edit className='w-4 h-4 text-yellow-600' />
+														</Button>
+													</DialogTrigger>
+													<DialogContent>
+														<DialogHeader>
+															<DialogTitle>Edit Category</DialogTitle>
+															<DialogDescription>
+																Update the category name below.
+															</DialogDescription>
+														</DialogHeader>
+														<Form {...categoryEditForm}>
+															<form
+																onSubmit={categoryEditForm.handleSubmit(
+																	handleCategoryEdit,
+																)}
+																className='space-y-4'>
+																<FormField
+																	control={categoryEditForm.control}
+																	name='category'
+																	render={({ field }) => (
+																		<FormItem>
+																			<FormLabel>Category Name</FormLabel>
+																			<FormControl>
+																				<Input
+																					placeholder='Enter category name...'
+																					{...field}
+																				/>
+																			</FormControl>
+																			<FormMessage />
+																		</FormItem>
+																	)}
+																/>
+																<DialogFooter>
+																	<Button
+																		type='button'
+																		variant='outline'
+																		onClick={() => {
+																			setCategoryDialogOpen(false);
+																			setEditingCategory(null);
+																		}}>
+																		Cancel
+																	</Button>
+																	<Button
+																		type='submit'
+																		disabled={loadingStates.updatingCategory}>
+																		{loadingStates.updatingCategory ? (
+																			<>
+																				<Loader2 className='w-4 h-4 animate-spin mr-2' />
+																				Updating...
+																			</>
+																		) : (
+																			'Update'
+																		)}
+																	</Button>
+																</DialogFooter>
+															</form>
+														</Form>
+													</DialogContent>
+												</Dialog>
+
+												<AlertDialog>
+													<AlertDialogTrigger asChild>
+														<Button
+															variant='ghost'
+															size='sm'
+															className='hover:bg-red-100 dark:hover:bg-red-900/30'
+															title='Delete Category'>
+															<Trash2 className='w-4 h-4 text-red-600' />
+														</Button>
+													</AlertDialogTrigger>
+													<AlertDialogContent>
+														<AlertDialogHeader>
+															<AlertDialogTitle>
+																Delete Category
+															</AlertDialogTitle>
+															{usedInTasks.length > 0 ? (
+																<div>
+																	<AlertDialogDescription className='mb-2'>
+																		This category is used by the following
+																		tasks:
+																	</AlertDialogDescription>
+																	<ul className='list-disc list-inside space-y-1 mb-2'>
+																		{usedInTasks.map((task) => (
+																			<li key={task._id} className='text-sm'>
+																				{task.task}
+																			</li>
+																		))}
+																	</ul>
+																	<p className='text-red-600 dark:text-red-400 font-medium'>
+																		Cannot delete category while it's being used
+																		by tasks.
+																	</p>
+																</div>
+															) : (
+																<AlertDialogDescription>
+																	`Are you sure you want to delete "$
+																	{categoryItem.category}"? This action cannot
+																	be undone.`
+																</AlertDialogDescription>
+															)}
+														</AlertDialogHeader>
+														<AlertDialogFooter>
+															<AlertDialogCancel>Cancel</AlertDialogCancel>
+															<AlertDialogAction
+																disabled={
+																	usedInTasks.length > 0 ||
+																	loadingStates.deletingCategory
+																}
+																onClick={() =>
+																	handleCategoryDelete(categoryItem._id)
+																}
+																className='bg-red-600 hover:bg-red-700'>
+																{loadingStates.deletingCategory ? (
+																	<>
+																		<Loader2 className='w-4 h-4 animate-spin mr-2' />
+																		Deleting...
+																	</>
+																) : (
+																	'Delete'
+																)}
+															</AlertDialogAction>
+														</AlertDialogFooter>
+													</AlertDialogContent>
+												</AlertDialog>
+											</div>
+										</div>
+									);
+								})}
 							</div>
 						) : (
-							// 🎭 Enhanced empty state
 							<div className='flex flex-col items-center justify-center h-full text-center py-8'>
 								<div className='w-16 h-16 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center mb-4'>
 									<Tag className='w-8 h-8 text-blue-500' />
@@ -403,7 +774,6 @@ const TaskCategoryManagementPage: React.FC = () => {
 						<form
 							onSubmit={taskCreationForm.handleSubmit(handleTaskFormSubmission)}
 							className='space-y-4'>
-							{/* Task Name Field */}
 							<FormField
 								control={taskCreationForm.control}
 								name='task'
@@ -424,7 +794,6 @@ const TaskCategoryManagementPage: React.FC = () => {
 								)}
 							/>
 
-							{/* Category Selection Field */}
 							<FormField
 								control={taskCreationForm.control}
 								name='category'
@@ -445,7 +814,6 @@ const TaskCategoryManagementPage: React.FC = () => {
 								)}
 							/>
 
-							{/* Enhanced Days Selection */}
 							<div className='space-y-3'>
 								<FormLabel className='text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2'>
 									<Calendar className='w-4 h-4' />
@@ -492,7 +860,6 @@ const TaskCategoryManagementPage: React.FC = () => {
 								</p>
 							</div>
 
-							{/* Submit Button */}
 							<Button
 								type='submit'
 								disabled={loadingStates.submittingTask}
@@ -517,7 +884,6 @@ const TaskCategoryManagementPage: React.FC = () => {
 				<div className='flex-1 bg-white/30 dark:bg-black/10 backdrop-blur-sm rounded-xl border border-white/20 dark:border-white/10 p-4 overflow-hidden'>
 					<div className='h-full overflow-y-auto scrollbar-thin scrollbar-thumb-purple-500/30 scrollbar-track-transparent'>
 						{loadingStates.tasks ? (
-							// 💀 Loading skeleton
 							<div className='space-y-3'>
 								{[...Array(4)].map((_, index) => (
 									<div key={index} className='flex items-center gap-3 p-3'>
@@ -531,7 +897,7 @@ const TaskCategoryManagementPage: React.FC = () => {
 								{pendingTasksList.map((taskItem) => (
 									<div
 										key={taskItem._id}
-										className='flex items-center gap-3 p-3 bg-white/40 dark:bg-black/20 backdrop-blur-sm rounded-lg border border-white/30 dark:border-white/10 hover:bg-white/60 dark:hover:bg-black/30 transition-all duration-200'>
+										className='flex items-center gap-3 p-3 bg-white/40 dark:bg-black/20 backdrop-blur-sm rounded-lg border border-white/30 dark:border-white/10 hover:bg-white/60 dark:hover:bg-black/30 transition-all duration-200 group'>
 										<div className='flex-1'>
 											<Input
 												value={taskItem.task}
@@ -552,11 +918,189 @@ const TaskCategoryManagementPage: React.FC = () => {
 													),
 											)}
 										</div>
+
+										{/* Task Action Buttons */}
+										<div className='flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200'>
+											<Dialog
+												open={taskDialogOpen && editingTask === taskItem._id}
+												onOpenChange={(open) => {
+													setTaskDialogOpen(open);
+													if (!open) setEditingTask(null);
+												}}>
+												<DialogTrigger asChild>
+													<Button
+														variant='ghost'
+														size='sm'
+														onClick={() => openTaskEditDialog(taskItem)}
+														className='hover:bg-yellow-100 dark:hover:bg-yellow-900/30'
+														title='Edit Task'>
+														<Edit className='w-4 h-4 text-yellow-600' />
+													</Button>
+												</DialogTrigger>
+												<DialogContent className='max-w-md'>
+													<DialogHeader>
+														<DialogTitle>Edit Task</DialogTitle>
+														<DialogDescription>
+															Update the task details below.
+														</DialogDescription>
+													</DialogHeader>
+													<Form {...taskEditForm}>
+														<form
+															onSubmit={taskEditForm.handleSubmit(
+																handleTaskEdit,
+															)}
+															className='space-y-4'>
+															<FormField
+																control={taskEditForm.control}
+																name='task'
+																render={({ field }) => (
+																	<FormItem>
+																		<FormLabel>Task Name</FormLabel>
+																		<FormControl>
+																			<Input
+																				placeholder='Enter task name...'
+																				{...field}
+																			/>
+																		</FormControl>
+																		<FormMessage />
+																	</FormItem>
+																)}
+															/>
+
+															<FormField
+																control={taskEditForm.control}
+																name='category'
+																render={({ field }) => (
+																	<FormItem>
+																		<FormLabel>Category ID</FormLabel>
+																		<FormControl>
+																			<Input
+																				placeholder='Enter category ID...'
+																				{...field}
+																			/>
+																		</FormControl>
+																		<FormMessage />
+																	</FormItem>
+																)}
+															/>
+
+															<div className='space-y-3'>
+																<FormLabel className='text-sm font-medium'>
+																	Repeat Schedule
+																</FormLabel>
+																<div className='flex flex-wrap gap-2'>
+																	{DAYS_OF_WEEK.map((dayConfig) => (
+																		<FormField
+																			key={dayConfig.key}
+																			control={taskEditForm.control}
+																			name={
+																				dayConfig.key as keyof z.infer<
+																					typeof TaskFormSchema
+																				>
+																			}
+																			render={({ field }) => (
+																				<FormItem className='flex items-center space-y-0'>
+																					<FormControl>
+																						<Checkbox
+																							checked={field.value as boolean}
+																							onCheckedChange={field.onChange}
+																							className='sr-only'
+																						/>
+																					</FormControl>
+																					<FormLabel
+																						className='cursor-pointer'
+																						title={`Toggle ${dayConfig.full}`}>
+																						<Badge
+																							variant={
+																								field.value
+																									? 'default'
+																									: 'outline'
+																							}
+																							className={cn(
+																								'transition-all duration-200 hover:scale-105',
+																								field.value
+																									? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg'
+																									: 'hover:bg-purple-50 dark:hover:bg-purple-900/20',
+																							)}>
+																							{dayConfig.label}
+																						</Badge>
+																					</FormLabel>
+																				</FormItem>
+																			)}
+																		/>
+																	))}
+																</div>
+															</div>
+
+															<DialogFooter>
+																<Button
+																	type='button'
+																	variant='outline'
+																	onClick={() => {
+																		setTaskDialogOpen(false);
+																		setEditingTask(null);
+																	}}>
+																	Cancel
+																</Button>
+																<Button
+																	type='submit'
+																	disabled={loadingStates.updatingTask}>
+																	{loadingStates.updatingTask ? (
+																		<>
+																			<Loader2 className='w-4 h-4 animate-spin mr-2' />
+																			Updating...
+																		</>
+																	) : (
+																		'Update'
+																	)}
+																</Button>
+															</DialogFooter>
+														</form>
+													</Form>
+												</DialogContent>
+											</Dialog>
+
+											<AlertDialog>
+												<AlertDialogTrigger asChild>
+													<Button
+														variant='ghost'
+														size='sm'
+														className='hover:bg-red-100 dark:hover:bg-red-900/30'
+														title='Delete Task'>
+														<Trash2 className='w-4 h-4 text-red-600' />
+													</Button>
+												</AlertDialogTrigger>
+												<AlertDialogContent>
+													<AlertDialogHeader>
+														<AlertDialogTitle>Delete Task</AlertDialogTitle>
+														<AlertDialogDescription>
+															Are you sure you want to delete "{taskItem.task}"?
+															This action cannot be undone.
+														</AlertDialogDescription>
+													</AlertDialogHeader>
+													<AlertDialogFooter>
+														<AlertDialogCancel>Cancel</AlertDialogCancel>
+														<AlertDialogAction
+															disabled={loadingStates.deletingTask}
+															onClick={() => handleTaskDelete(taskItem._id)}
+															className='bg-red-600 hover:bg-red-700'>
+															{loadingStates.deletingTask ? (
+																<>
+																	<Loader2 className='w-4 h-4 animate-spin mr-2' />
+																	Deleting...
+																</>
+															) : (
+																'Delete'
+															)}
+														</AlertDialogAction>
+													</AlertDialogFooter>
+												</AlertDialogContent>
+											</AlertDialog>
+										</div>
 									</div>
 								))}
 							</div>
 						) : (
-							// 🎭 Enhanced empty state
 							<div className='flex flex-col items-center justify-center h-full text-center py-8'>
 								<div className='w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center mb-4'>
 									<CheckCircle2 className='w-8 h-8 text-purple-500' />
@@ -589,43 +1133,3 @@ const LabelInputContainer: React.FC<{
 };
 
 export default TaskCategoryManagementPage;
-
-
-
-
-// ! UI/UX IMPROVEMENTS IMPLEMENTED:
-// * 1. Modern gradient backgrounds with glass morphism effects
-// * 2. Enhanced visual hierarchy with better spacing and typography
-// * 3. Responsive design with improved mobile-first approach
-// * 4. Interactive elements with smooth hover effects and transitions
-// * 5. Better loading states and error handling
-// * 6. Improved accessibility with proper ARIA labels
-// * 7. Enhanced form validation with better user feedback
-// * 8. Professional color scheme with better contrast ratios
-// * 9. Micro-interactions for better user engagement
-// * 10. Consistent design language matching the app theme
-// * 11. Better empty states with descriptive messages
-// * 12. Enhanced card layouts with proper shadows and borders
-// * 13. Improved button styles with gradient effects
-// * 14. Better day selection UI with interactive badges
-// * 15. Optimized scrolling areas with custom styling
-// * 16. Loading skeletons for better perceived performance
-// * 17. Toast notifications for user feedback
-// * 18. Better form reset handling
-// * 19. Improved category display with copy functionality
-// * 20. Enhanced task list with better filtering
-
-// ! PERFORMANCE OPTIMIZATIONS IMPLEMENTED:
-// * 1. Memoized form configurations to prevent re-renders
-// * 2. Optimized axios requests with proper error handling
-// * 3. Efficient array operations using spread operators
-// * 4. Debounced form submissions to prevent spam
-// * 5. Lazy loading for better initial page performance
-// * 6. Optimized re-renders with proper dependency arrays
-// * 7. Better state management with reduced unnecessary updates
-// * 8. Cached API responses where appropriate
-// * 9. Minimized DOM manipulations
-// * 10. Efficient filtering operations
-
-// ! FUTURE IMPROVEMENTS:
-// TODO: Add drag-and-drop functionality for task reordering

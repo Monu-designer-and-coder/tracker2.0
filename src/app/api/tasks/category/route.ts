@@ -2,7 +2,10 @@ import dbConn from '@/lib/dbConn';
 import TaskCategoryModel, {
 	TaskCategoryModelInterface,
 } from '@/model/task-category.model';
-import { TaskCategorySchema } from '@/schema/tasks.schema';
+import {
+	TaskCategoryPUTSchema,
+	TaskCategorySchema,
+} from '@/schema/tasks.schema';
 import { getTaskCategoryResponse } from '@/types/res/GetResponse.types';
 import { NextResponse } from 'next/server';
 
@@ -44,6 +47,36 @@ export async function GET() {
 		await TaskCategoryModel.aggregate([{ $project: { _id: 1, category: 1 } }]);
 
 	return NextResponse.json(categories);
+}
+
+/**
+ * ! Update task by ID
+ */
+export async function PUT(request: Request) {
+	await dbConn();
+
+	const requestBody = await request.json();
+	const validationResult = TaskCategoryPUTSchema.safeParse(requestBody);
+
+	if (!validationResult.success) {
+		return NextResponse.json(
+			{ errors: validationResult.error.format() },
+			{ status: 400 },
+		);
+	}
+
+	try {
+		const updatedTaskCategory = await TaskCategoryModel.findByIdAndUpdate(
+			validationResult.data.id,
+			validationResult.data.data,
+			{ new: true },
+		);
+		return NextResponse.json<TaskCategoryModelInterface | null>(updatedTaskCategory, {
+			status: 200,
+		});
+	} catch (err) {
+		return NextResponse.json({ error: err }, { status: 500 });
+	}
 }
 
 /**

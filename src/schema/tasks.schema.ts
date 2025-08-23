@@ -49,6 +49,10 @@ export const TaskFormSchema = z.object({
 	friday: z.boolean().optional(),
 	saturday: z.boolean().optional(),
 });
+export const TaskCategoryPUTSchema = z.object({
+	id: z.string().optional(),
+	data: z.object({ category: z.string().trim().min(3, "Entry must be of at least 3 char.") }),
+});
 export const TaskPUTSchema = z.object({
 	id: z.string().optional(),
 	data: z.object({

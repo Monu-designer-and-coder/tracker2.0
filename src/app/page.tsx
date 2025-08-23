@@ -488,7 +488,9 @@ const HomePage: React.FC = () => {
 							<CardHeader className='space-y-0 pb-4'>
 								<div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
 									<div>
-										<h3 className='text-xl font-semibold'>Today's Tasks</h3>
+										<h3 className='text-xl font-semibold'>
+											Today's Tasks: DATE: {currentDateInBackend}
+										</h3>
 										<p className='text-sm text-muted-foreground'>
 											{taskStats.completed} of {taskStats.total} completed
 										</p>
