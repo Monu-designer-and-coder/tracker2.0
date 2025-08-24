@@ -593,10 +593,10 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 		<div
 			ref={focusContainerRef}
 			className={cn(
-				'w-full max-w-2xl mx-auto space-y-6 transition-all duration-500',
+				'w-full max-w-2xl mx-auto space-y-6 transition-all duration-500 ',
 				className,
 				isFocusMode &&
-					`${currentModeConfig.fullscreenBg} w-screen h-screen max-w-none flex flex-col justify-center items-center p-0 space-y-0 relative overflow-hidden`,
+					`${currentModeConfig.fullscreenBg} w-screen h-screen max-w-none flex flex-col justify-center items-center p-0 space-y-0 relative overflow-hidden bg-gradient-to-tr from-red-500 via-orange-400 to-yellow-300 dark:from-red-950 dark:via-black dark:to-slate-950`,
 			)}>
 			
 			{/* * Animated background particles for fullscreen mode */}
@@ -728,7 +728,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 			{/* ! MAIN TIMER CARD */}
 			<Card
 				className={cn(
-					'overflow-hidden border-0 shadow-2xl transition-all duration-500',
+					'overflow-hidden border-0 shadow-2xl transition-all duration-500 bg-gradient-to-tr from-red-100 via-sky-50 to-emerald-50 dark:from-red-900 dark:via-blue-950 dark:to-teal-950',
 					isFocusMode &&
 						'bg-transparent border-none shadow-none flex items-center justify-center w-full h-full flex-col',
 				)}>

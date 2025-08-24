@@ -82,7 +82,7 @@ const TECHNIQUE_STEPS = [
 const PomodoroFocusPage: React.FC<PomodoroPageProps> = () => {
   // ! RENDER COMPONENT
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-tr from-red-50 via-emerald-50 to-blue-100 dark:from-red-900 dark:via-emerald-900 dark:to-blue-900">
       {/* ! PAGE CONTAINER */}
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         
@@ -124,7 +124,7 @@ const PomodoroFocusPage: React.FC<PomodoroPageProps> = () => {
           
           {/* ! TIMER SECTION - MAIN FOCUS */}
           <div className="lg:col-span-2">
-            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-3xl border border-white/20 shadow-2xl p-6">
+            <div className="bg-gradient-to-tr from-red-100 via-sky-50 to-emerald-50 dark:from-red-900 dark:via-blue-950 dark:to-teal-950 backdrop-blur-sm rounded-3xl border  shadow-2xl p-6">
               <PomodoroTimer 
                 size="xl"
                 initialWorkDuration={45}
@@ -132,7 +132,8 @@ const PomodoroFocusPage: React.FC<PomodoroPageProps> = () => {
                 initialLongBreakDuration={15}
                 autoStartBreaks={false}
                 enableNotifications={true}
-                className="w-full"
+                className="w-full "
+
               />
             </div>
           </div>
@@ -141,7 +142,7 @@ const PomodoroFocusPage: React.FC<PomodoroPageProps> = () => {
           <div className="space-y-6">
             
             {/* * Benefits Section */}
-            <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-white/20">
+            <Card className="bg-gradient-to-tr from-red-100 via-sky-50 to-emerald-50 dark:from-red-900 dark:via-blue-950 dark:to-teal-950">
               <CardContent className="p-6">
                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-amber-500" />
@@ -179,7 +180,7 @@ const PomodoroFocusPage: React.FC<PomodoroPageProps> = () => {
             </Card>
 
             {/* * How It Works Section */}
-            <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-white/20">
+            <Card className="bg-gradient-to-tr from-red-100 via-sky-50 to-emerald-50 dark:from-red-900 dark:via-blue-950 dark:to-teal-950">
               <CardContent className="p-6">
                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <Target className="w-5 h-5 text-green-500" />
@@ -204,7 +205,7 @@ const PomodoroFocusPage: React.FC<PomodoroPageProps> = () => {
             </Card>
 
             {/* * Quick Tips Section */}
-            <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-white/20">
+            <Card className="bg-gradient-to-tr from-red-100 via-sky-50 to-emerald-50 dark:from-red-900 dark:via-blue-950 dark:to-teal-950">
               <CardContent className="p-6">
                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <Brain className="w-5 h-5 text-blue-500" />

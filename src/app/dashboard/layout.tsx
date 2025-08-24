@@ -37,7 +37,7 @@ export default function EnhancedDashboardLayout({
 	className = '',
 }: EnhancedDashboardLayoutProps): JSX.Element {
 	return (
-		<div className='min-h-screen relative overflow-hidden'>
+		<div className='h-full relative overflow-hidden  '>
 			{/* Global Background with Gradient Effects */}
 			<div className='fixed inset-0 -z-20'>
 				{/* Primary gradient background */}
@@ -51,7 +51,7 @@ export default function EnhancedDashboardLayout({
 
 			{/* Enhanced Sidebar Provider with Modern Styling */}
 			<SidebarProvider
-				className='relative z-10'
+				className='relative z-10 h-full'
 				style={
 					{
 						'--sidebar-width': '280px',
@@ -64,11 +64,11 @@ export default function EnhancedDashboardLayout({
 				{/* Main Content Area with Glass Morphism */}
 				<main
 					className={`
-          relative min-h-screen w-full transition-all duration-300 ease-in-out
+          relative h-full w-full transition-all duration-300 ease-in-out bg-gradient-to-tr from-red-100 via-sky-50 to-emerald-50 dark:from-red-900 dark:via-blue-950 dark:to-teal-950
           ${className}
         `}>
 					{/* Enhanced Sidebar Trigger with Glass Effects */}
-					<div className='sticky top-0 z-30 backdrop-blur-xl bg-white/80 dark:bg-neutral-900/80 border-b border-white/20 dark:border-neutral-700/50 shadow-sm'>
+					<div className='sticky h-[5%] top-0 z-30 backdrop-blur-xl bg-white/80 dark:bg-neutral-900/80 border-b border-white/20 dark:border-neutral-700/50 shadow-sm'>
 						<div className='flex items-center gap-4 p-4'>
 							{/* Enhanced sidebar trigger button */}
 							<div className='group relative'>
@@ -101,7 +101,6 @@ export default function EnhancedDashboardLayout({
 										Dashboard
 									</span>
 								</div>
-
 								{/* Header actions space for future enhancements */}
 								<div className='flex items-center space-x-3'>
 									{/* Placeholder for search, notifications, user menu, etc. */}
@@ -114,18 +113,18 @@ export default function EnhancedDashboardLayout({
 					</div>
 
 					{/* Enhanced Main Content Container */}
-					<div className='relative'>
+					<div className='relative h-[80%] '>
 						{/* Content wrapper with enhanced styling */}
 						<div className='relative min-h-[calc(100vh-80px)] backdrop-blur-[1px]'>
 							{/* Subtle content overlay for better text readability */}
-							<div className='absolute inset-0 bg-white/5 dark:bg-neutral-900/5 pointer-events-none' />
+							<div className='absolute inset-0 bg-white/5 dark:bg-neutral-900/5 pointer-events-none ' />
 
 							{/* Main content rendering */}
 							<div className='relative z-10 p-6 lg:p-8'>{children}</div>
 						</div>
 
 						{/* Enhanced Footer Section */}
-						<footer className='relative mt-auto border-t border-white/20 dark:border-neutral-700/50 backdrop-blur-xl bg-white/60 dark:bg-neutral-900/60'>
+						<footer className='relative mt-auto border-t border-white/20 dark:border-neutral-700/50 backdrop-blur-xl bg-white/60 dark:bg-neutral-900/60 h-[5%]'>
 							<div className='px-6 py-4'>
 								<div className='flex flex-col md:flex-row items-center justify-between gap-4'>
 									<div className='flex items-center space-x-4'>

@@ -291,7 +291,7 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
 	return (
 		<header
 			className={`sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${className}`}>
-			<div className='container flex h-16 items-center justify-between px-4'>
+			<div className='container flex h-full items-center justify-between px-4'>
 				{/* ! BRAND SECTION */}
 				<div className='flex items-center gap-2'>
 					<div className='flex items-center gap-2'>

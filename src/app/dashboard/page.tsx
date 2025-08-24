@@ -384,10 +384,7 @@ const EnhancedDashboardPage: React.FC = () => {
 	// * ------------------------------------------------------------------------
 
 	return (
-		<div className='min-h-screen relative overflow-hidden'>
-			{/* Modern Background with Animated Gradient Orbs */}
-			<BackgroundGradientOrbs />
-
+		<>
 			{/* Modal Overlay System */}
 			<ModalOverlaySystem
 				activeCard={activeExpandedCard}
@@ -395,26 +392,30 @@ const EnhancedDashboardPage: React.FC = () => {
 				modalRef={modalContainerRef}
 				componentId={componentUniqueId}
 			/>
+			<div className='h-[90%] overflow-hidden'>
+				{/* Modern Background with Animated Gradient Orbs */}
+				<BackgroundGradientOrbs />
 
-			{/* Main Content Container */}
-			<div className='relative z-10 px-4 py-8'>
-				{/* Enhanced Page Header */}
-				<DashboardHeader />
+				{/* Main Content Container */}
+				<div className='relative z-10 px-4 py-8 h-[calc(100vh*3/4)] overflow-y-scroll'>
+					{/* Enhanced Page Header */}
+					<DashboardHeader />
 
-				{/* Subject Cards Grid with Enhanced Animations */}
-				<SubjectCardsGrid
-					cards={enhancedSubjectCards}
-					onCardSelect={handleCardSelection}
-					componentId={componentUniqueId}
-				/>
+					{/* Subject Cards Grid with Enhanced Animations */}
+					<SubjectCardsGrid
+						cards={enhancedSubjectCards}
+						onCardSelect={handleCardSelection}
+						componentId={componentUniqueId}
+					/>
 
-				{/* Empty State Handler */}
-				{enhancedSubjectCards.length === 0 && <EmptyDashboardState />}
+					{/* Empty State Handler */}
+					{enhancedSubjectCards.length === 0 && <EmptyDashboardState />}
+				</div>
+
+				{/* Global Scrollbar Styles */}
+				<GlobalScrollbarStyles />
 			</div>
-
-			{/* Global Scrollbar Styles */}
-			<GlobalScrollbarStyles />
-		</div>
+		</>
 	);
 };
 
@@ -678,7 +679,7 @@ const ModalOverlaySystem: React.FC<ModalOverlaySystemProps> = ({
 		{/* Modal content */}
 		<AnimatePresence>
 			{activeCard && typeof activeCard === 'object' && (
-				<div className='fixed inset-0 grid place-items-center z-[100] p-4'>
+				<div className='fixed inset-0 h-screen top-0 left-0 flex items-center justify-center z-[100] p-4'>
 					{/* Close button */}
 					<motion.button
 						key={`close-button-${activeCard.id}-${componentId}`}

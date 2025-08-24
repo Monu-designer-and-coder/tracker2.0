@@ -118,10 +118,10 @@ export default function RootLayout({
 						{/* ! APP STRUCTURE */}
 						<div className='flex min-h-screen flex-col'>
 							{/* ? Header with consistent height */}
-							<Header className='h-16 shrink-0' />{' '}
+							<Header className='h-[20%] shrink-0' />{' '}
 							{/* * Changed from vh to fixed height for consistency */}
 							{/* ? Main content area with proper spacing */}
-							<main className='flex-1 overflow-hidden'>
+							<main className='flex-1 h-[79%] overflow-hidden'>
 								<div className='h-full w-full'>{children}</div>
 							</main>
 							{/* TODO: Add footer component if needed */}

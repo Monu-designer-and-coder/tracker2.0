@@ -485,7 +485,7 @@ const TaskCategoryManagementPage: React.FC = () => {
 
 	// 🎨 Filtered tasks for better performance
 	const pendingTasksList = useMemo(
-		() => tasksListData.filter((task) => task.done === undefined),
+		() => tasksListData.filter((task) => task.repeat?.length !== 0),
 		[tasksListData],
 	);
 
