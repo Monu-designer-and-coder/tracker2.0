@@ -50,12 +50,12 @@ const enhancedNavigationItems = [
 		ariaLabel: 'Navigate to chapters management',
 	},
 	{
-		id: 'topics-exploration',
-		title: 'Topics',
-		url: '/dashboard/topics',
+		id: 'progress-exploration',
+		title: 'Progress',
+		url: '/dashboard/progress',
 		icon: NotebookPen,
-		description: 'Explore specific topics and concepts',
-		ariaLabel: 'Navigate to topics exploration',
+		description: 'Explore specific progress and concepts',
+		ariaLabel: 'Navigate to progress exploration',
 	},
 	{
 		id: 'content-creation',
