@@ -90,7 +90,7 @@ export default function TasksLayout({ children }: TasksLayoutProps) {
 					<div className='absolute inset-0 bg-white/20 dark:bg-black/20 backdrop-blur-md rounded-2xl border border-white/30 dark:border-white/10 shadow-2xl'></div>
 					
 					{/* Actual content */}
-					<div className='relative z-10 w-full h-full'>
+					<div className='relative z-10 w-full h-full overflow-y-auto'>
 						{children}
 					</div>
 				</section>
