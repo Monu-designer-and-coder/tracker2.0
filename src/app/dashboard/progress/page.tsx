@@ -312,7 +312,7 @@ const ModernDashboard: React.FC = () => {
 
 	// * Main Dashboard Render
 	return (
-		<div className='min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 relative overflow-hidden'>
+		<div className='min-h-screen bg-gradient-to-br from-blue-50/10 via-indigo-50/10 to-purple-50/10 dark:from-gray-900/10 dark:via-blue-900/10 dark:to-purple-900/10 relative overflow-hidden'>
 			{/* Background Animation Orbs */}
 			<div className='absolute inset-0 overflow-hidden pointer-events-none'>
 				<div className='absolute -top-40 -right-40 w-80 h-80 bg-purple-400/20 rounded-full mix-blend-multiply filter blur-xl animate-blob'></div>
@@ -746,7 +746,7 @@ const ModernDashboard: React.FC = () => {
 
 											<div className='p-3 bg-green-50 dark:bg-green-900/20 rounded-lg'>
 												<div className='text-2xl font-bold text-green-600 dark:text-green-400'>
-													{calculateProgress.overall().completed}
+													{calculateProgress.overall().completed}/{calculateProgress.overall().total}({Math.round(calculateProgress.overall().percentage)}%)
 												</div>
 												<div className='text-sm text-gray-600 dark:text-gray-400'>
 													Completed Topics
@@ -760,7 +760,7 @@ const ModernDashboard: React.FC = () => {
 													{
 														processedData.filter((s) => s.standard === 'XI')
 															.length
-													}
+													} Subjects
 												</div>
 												<div className='text-sm text-gray-600 dark:text-gray-400'>
 													Standard XI
@@ -772,7 +772,7 @@ const ModernDashboard: React.FC = () => {
 													{
 														processedData.filter((s) => s.standard === 'XII')
 															.length
-													}
+													} Subjects
 												</div>
 												<div className='text-sm text-gray-600 dark:text-gray-400'>
 													Standard XII
