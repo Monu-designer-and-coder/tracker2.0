@@ -22,27 +22,25 @@ export async function PUT(request: Request) {
 		const todayTasks = await TaskModel.find({ repeat: todayDayName });
 
 		// * Mark current tracked tasks as past
-		await TaskTrackerModel.updateMany(
-			{ status: 'current' },
-			{ status: 'past' },
+		TaskTrackerModel.updateMany({ status: 'current' }, { status: 'past' }).then(
+			async () => {
+				// * Create today's tasks and tracker entries
+				for (const task of todayTasks) {
+					const newTask = await TaskModel.create({
+						task: task.task,
+						category: task.category,
+						done: false,
+						assignedDate: new Date(),
+					});
+
+					await TaskTrackerModel.create({
+						date: new Date(),
+						task: newTask._id,
+						status: 'current',
+					});
+				}
+			},
 		);
-
-		// * Create today's tasks and tracker entries
-		for (const task of todayTasks) {
-			const newTask = await TaskModel.create({
-				task: task.task,
-				category: task.category,
-				done: false,
-				assignedDate: new Date(),
-			});
-
-			await TaskTrackerModel.create({
-				date: new Date(),
-				task: newTask._id,
-				status: 'current',
-			});
-		}
-
 		return NextResponse.json({
 			message: 'Day pack-up completed successfully',
 			tasksAdded: todayTasks.length,
