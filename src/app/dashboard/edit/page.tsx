@@ -270,13 +270,13 @@ const ModernEditPage = () => {
 				let endpoint = '';
 				switch (type) {
 					case 'subject':
-						endpoint = `/api/topics?subjectId=${item.subjectId}`;
+						endpoint = `/api/topics?id=${item.subjectId}`;
 						break;
 					case 'chapter':
-						endpoint = `/api/subjects?chapterId=${item._id}`;
+						endpoint = `/api/subjects?id=${item._id}`;
 						break;
 					case 'topic':
-						endpoint = `/api/chapters?topicId=${item._id}`;
+						endpoint = `/api/chapters?id=${item._id}`;
 						break;
 				}
 
