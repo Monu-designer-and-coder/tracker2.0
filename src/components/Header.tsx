@@ -28,6 +28,7 @@ import {
 	CheckSquare2,
 	GraduationCap,
 	Sparkles,
+	ChartNetwork,
 } from 'lucide-react';
 
 // ! COMPONENTS
@@ -78,6 +79,7 @@ const NAVIGATION_ITEMS = [
 	{ href: '/pomodoro', label: 'Focus', icon: Clock },
 	{ href: '/dashboard', label: 'Dashboard', icon: BarChart3 },
 	{ href: '/tasks', label: 'Tasks', icon: CheckSquare2 },
+	{ href: '/work', label: 'Work', icon: ChartNetwork },
 ] as const;
 
 /**
